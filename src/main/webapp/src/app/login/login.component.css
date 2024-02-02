@@ -1,0 +1,103 @@
+.login{
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-panel{
+    min-width: 300px;
+    flex-direction: column;
+    background-color: #ffffff;
+    border-radius: 3px;
+    border: 2px solid #80808066;
+}
+
+.logo{
+    display: flex; 
+    flex-direction: column;
+    background-image: url('../../resources/logo2.png');
+    width: 300px;
+    height: 100px;
+    display: flex;
+}
+
+h3{
+    text-align: center;
+}
+
+.login-fields{
+    margin-top: 20px;
+}
+
+.p-input-icon-left, .p-input-icon-right{
+    display: block;
+}
+
+.field{
+    margin: 10px;
+    background-color: white;
+}
+
+.field:not(:last-child){
+    margin-bottom: 20px;
+}
+
+.field-input{
+    width: 100%;
+}
+
+.login-buttons{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 10px;
+
+}
+
+.button{
+    width: 95%;
+    border-radius: 3px;
+    height: 40px;
+    background-image: linear-gradient(to left, #AA39E9, #C232CF, #CD5980);
+    border: 1px solid #80808066;
+
+}
+
+.button:hover{
+    cursor: pointer;
+}
+
+.button:disabled{
+    background-image: linear-gradient(to left, rgba(170,57,233, 0.4), rgba(194,50,207, 0.4), rgba(205,89,128, 0.4));
+}
+
+.extra-fields{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 12px;
+
+}
+
+.footer{
+    display: flex;
+    width: 100%;
+    font-size: 14px;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.footer span{
+    margin-right: 5px;
+}
+
+
+[type="checkbox"]
+{
+    vertical-align:middle;
+}

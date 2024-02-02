@@ -1,0 +1,9 @@
+.app-content{
+    background-image: url('../resources/login_bg.jpg');
+    background-size: cover;
+}
+
+.toolbar{
+    position: fixed;
+    width: 100%;
+}

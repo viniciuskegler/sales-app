@@ -1,0 +1,57 @@
+<div class="login">
+  <span class="login-panel">
+    <h3>Nameless Project</h3>
+
+    <form class="login-fields" [formGroup]="form">
+      <div class="field">
+        <input
+          #user
+          class="field-input"
+          aria-describedby="username-error"
+          type="text"
+          pInputText
+          formControlName="loginControl"
+          placeholder="Username"
+          (onblur)="refreshView()"
+        />
+        <small *ngIf="user.classList.contains('ng-invalid') && user.classList.contains('ng-dirty')" class="p-invalid" id="username-error">Invalid E-mail</small>
+      </div>
+      <div class="field">
+        <span class="p-input-icon-right">
+          <i
+            *ngIf="showPassword"
+            class="eye-closed"
+            (click)="togglePassword()"
+          ></i>
+          <i *ngIf="!showPassword" class="eye" (click)="togglePassword()"></i>
+          <input
+            id="float-password"
+            class="field-input"
+            [type]="showPassword ? 'text' : 'password'"
+            pInputText
+            formControlName="passControl"
+            placeholder="Password"
+          />
+        </span>
+      </div>
+    </form>
+    <div class="extra-fields">
+      <span> <input type="checkbox" />Remember me </span>
+      <a href="https://google.com.br">Forgot my password</a>
+    </div>
+    <div class="login-buttons">
+      <button
+        type="button"
+        class="button"
+        [disabled]="form.invalid"
+        (click)="doLogin()"
+      >
+        Login
+      </button>
+    </div>
+    <div class="footer">
+      <span>Don't have an account?</span>
+      <a routerLink="/login/signup">Sign-up</a>
+    </div>
+  </span>
+</div>

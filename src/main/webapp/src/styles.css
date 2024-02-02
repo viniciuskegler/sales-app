@@ -1,0 +1,19 @@
+
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+.eye{
+    background: url("./resources/icons-eye-16.png");
+    width: 16px;
+    height: 16px;
+    display: flex;
+}
+
+.eye-closed{
+    background: url("./resources/icons-eye-closed-16.png");
+    width: 16px;
+    height: 16px;
+    display: flex;
+}
