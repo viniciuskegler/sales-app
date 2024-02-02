@@ -1,18 +1,18 @@
 package io.github.viniciuskegler.domain.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@Data
 @Entity
 @Table(name = "order_item")
-public class OrderItem implements Serializable {
+public class OrderItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,6 +22,8 @@ public class OrderItem implements Serializable {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "item_id")
     private Item item;

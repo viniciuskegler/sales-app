@@ -31,7 +31,6 @@ public class ClientController {
     @ResponseBody
     @RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<Client> getAll(@PathVariable("id") Integer id){
-        Optional<Client> clientOpt = clientRepo.findById(id);
-        return clientOpt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return clientRepo.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
