@@ -1,3 +1,41 @@
-<div class="flex flex-col w-full h-full bg-red-200">
-    FILTROS
+<div class="flex h-full w-full flex-col">
+    <div class="flex w-full flex-row items-center gap-x-[10px] py-[5px]">
+        <z-icon zType="list-filter" />
+        <h3>Filters</h3>
+    </div>
+    <z-accordion zType="multiple" [zDefaultValue]="openFilters">
+        <z-accordion-item zValue="prices" zTitle="Price">
+            <div class="flex h-[48px] w-full flex-col items-center">
+                <z-slider
+                    class="mx-[10px] mt-[10px] w-9/10"
+                    [zDefault]="minPrice()"
+                    [zMin]="minPrice()"
+                    [zMax]="maxPrice()"
+                    (zSlideIndexChange)="currentMinPrice.set($event)" />
+                <div class="mt-[5px] flex w-full flex-row justify-between">
+                    <div class="ml-[10px]">
+                        {{ currentMinPrice() | currency }}
+                    </div>
+                    <div class="mr-[10px]">{{ maxPrice() | currency }}</div>
+                </div>
+            </div>
+        </z-accordion-item>
+        <z-accordion-item zValue="categories" zTitle="Categories">
+            <div [formGroup]="filtersForm" class="flex h-full w-full flex-col">
+                <div formArrayName="categories">
+                    @for (
+                        category of categoriesFormArray;
+                        track category;
+                        let i = $index
+                    ) {
+                        <div [formGroupName]="i">
+                            <span z-checkbox formControlName="checked">{{
+                                category.value.name
+                            }}</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </z-accordion-item>
+    </z-accordion>
 </div>

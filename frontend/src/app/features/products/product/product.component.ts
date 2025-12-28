@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject, OnInit, signal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { ProductDTO } from "../products.model";
+import { ProductDTO } from "../model/products.model";
 
 @Component({
     standalone: true,

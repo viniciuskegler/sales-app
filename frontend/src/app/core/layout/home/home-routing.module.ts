@@ -4,6 +4,7 @@ import { HomeComponent } from "./home.component";
 import { ProductsComponent } from "@features/products/products.component";
 import { ProductComponent } from "@features/products/product/product.component";
 import { productResolver } from "@features/products/product/product.resolver";
+import { filtersResolver } from "@features/products/filters.resolver";
 
 const routes: Routes = [
     {
@@ -18,6 +19,7 @@ const routes: Routes = [
             {
                 path: "products",
                 component: ProductsComponent,
+                resolve: { data: filtersResolver },
             },
             {
                 path: "product/:productId",

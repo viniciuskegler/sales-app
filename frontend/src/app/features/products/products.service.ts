@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable, signal } from "@angular/core";
-import { ProductDTO, ProductResponse } from "./products.model";
+import { ProductDTO, ProductResponse } from "./model/products.model";
 import { BehaviorSubject, Observable, of } from "rxjs";
 
 @Injectable({ providedIn: "root" })

@@ -1,7 +1,9 @@
+<!-- <button (click)="pagination.set(paginationOptions[1])">teste</button> -->
 <div
   class="flex flex-row flex-wrap justify-center w-full gap-x-[5px] gap-y-[10px]">
-  @if (productsObservable | async; as products) {
-    @for (product of products.products; track product.id) {
+  @if (products() && products()?.products) {
+  <!-- @if (productsObservable | async; as products) { -->
+    @for (product of products()!.products; track product.id) {
       <z-card class="flex flex-col justify-between w-[280px]">
         <div card-content>
           <a [routerLink]="['/product', product.id]">

@@ -5,8 +5,9 @@ import {
     provideClientHydration,
     withEventReplay,
 } from '@angular/platform-browser';
-import { provideHttpClient } from '@angular/common/http';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';import { provideZard } from '@shared/core/provider/providezard';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideZard } from '@shared/core/provider/providezard';
+import { loggingInterceptor } from './core/interceptors/log-interceptor';
 
 
 export const appConfig: ApplicationConfig = {
@@ -14,8 +15,7 @@ export const appConfig: ApplicationConfig = {
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
         provideClientHydration(withEventReplay()),
-        provideHttpClient(),
-        provideAnimationsAsync(),
-    
-    provideZard(),],
+        provideHttpClient(withInterceptors([loggingInterceptor])),
+        provideZard()
+    ],
 };
