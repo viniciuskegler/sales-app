@@ -1,27 +1,48 @@
-<!-- <button (click)="pagination.set(paginationOptions[1])">teste</button> -->
-<div
-  class="flex flex-row flex-wrap justify-center w-full gap-x-[5px] gap-y-[10px]">
-  @if (products() && products()?.products) {
-  <!-- @if (productsObservable | async; as products) { -->
-    @for (product of products()!.products; track product.id) {
-      <z-card class="flex flex-col justify-between w-[280px]">
-        <div card-content>
-          <a [routerLink]="['/product', product.id]">
-            <img [src]="product.thumbnail" class="h-[170px] w-full" />
-            <div class="text-2xl">{{ product.price | currency }}</div>
-            <div class="font-bold">{{ product.title }}</div>
-          </a>
+<div class="flex h-full w-full flex-col gap-y-[10px] items-center">
+    <div class="flex w-[90%] flex-row justify-between gap-x-[10px]">
+        <div>
+            <div>{{ products()?.total }} products</div>
         </div>
-        <div card-footer class="w-full">
-          <button z-button zFull (click)="alert('asdsaodkas')">
-            Add to Cart
-          </button>
+        <div class="">
+            <z-select
+                zPlaceholder="Select number of items per page"
+                [(zValue)]="pagination"
+                (zSelectionChange)="onPaginationChange($event)">
+                @for (option of paginationOptions; track $index) {
+                    <z-select-item [zValue]="option.toString()"
+                        >{{ option }} per page</z-select-item
+                    >
+                }
+            </z-select>
         </div>
-      </z-card>
-    }
-  } @else {
-    <ng-template #loading>
-      <div>Omaga its loading</div>
-    </ng-template>
-  }
+    </div>
+    <div
+        class="flex w-full flex-row flex-wrap justify-center gap-x-[5px] gap-y-[10px]">
+        @if (products() && products()?.products) {
+            @for (product of products()!.products; track product.id) {
+                <z-card class="flex w-[280px] flex-col justify-between">
+                    <div card-content>
+                        <a [routerLink]="['/product', product.id]">
+                            <img
+                                [src]="product.thumbnail"
+                                class="h-[170px] w-full" />
+                            <div class="text-2xl">
+                                {{ product.price | currency }}
+                            </div>
+                            <div class="font-bold">{{ product.title }}</div>
+                        </a>
+                    </div>
+                    <div card-footer class="w-full">
+                        <button z-button zFull (click)="alert('asdsaodkas')">
+                            Add to Cart
+                        </button>
+                    </div>
+                </z-card>
+            }
+        } @else {
+            <ng-template #loading>
+                <div>Omaga its loading</div>
+            </ng-template>
+        }
+    </div>
 </div>

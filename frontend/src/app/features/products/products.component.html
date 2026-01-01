@@ -1,4 +1,25 @@
-<div class="flex flex-row gap-x-[5px]">
-    <filter-list [categoryList]="categoryList()" [(categoryFilterValue)]="categoriesValue" [minPrice]="100" [maxPrice]="1000" class="w-1/8" />
-    <product-list class="w-7/8" [products]="resource.value() ?? null" [(pagination)]="paginationValue" />
+<div
+    class="flex flex-row gap-x-[5px] max-lg:flex-col max-lg:gap-x-0 max-lg:gap-y-[10px]">
+    <div id="filterButton" class="lg:hidden">
+        <button z-button zType="outline" (click)="openFiltersSheet()">
+            Filters
+            <z-icon zType="list-filter" />
+        </button>
+    </div>
+    <filter-list
+        id="filterList"
+        class="hidden w-1/8 lg:block"
+        [categoryList]="categoryList()"
+        [(categoryFilterValue)]="categoriesValue" />
+    <product-list
+        id="productList"
+        class="w-full lg:w-7/8"
+        [products]="resource.value() ?? null"
+        [(pagination)]="paginationValue" />
 </div>
+
+<ng-template #filtersSheet>
+    <filter-list
+        [categoryList]="categoryList()"
+        [(categoryFilterValue)]="categoriesValue" />
+</ng-template>

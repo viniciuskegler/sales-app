@@ -9,6 +9,8 @@ import { CommonModule, CurrencyPipe } from "@angular/common";
 import { ZardCardComponent } from "@shared/components/card/card.component";
 import { ZardButtonComponent } from "@shared/components/button/button.component";
 import { RouterLink } from "@angular/router";
+import { ZardSelectComponent } from "@shared/components/select/select.component";
+import { ZardSelectItemComponent } from "@shared/components/select/select-item.component";
 
 @Component({
     standalone: true,
@@ -21,6 +23,8 @@ import { RouterLink } from "@angular/router";
         ZardCardComponent,
         CurrencyPipe,
         ZardButtonComponent,
+        ZardSelectComponent,
+        ZardSelectItemComponent
     ],
 })
 export class ProductListComponent implements OnInit {
@@ -29,8 +33,8 @@ export class ProductListComponent implements OnInit {
     readonly carrouselMode = input<boolean>(false);
     readonly showPagination = input<boolean>(true);
 
-    readonly paginationOptions: number[] = [30, 50, 100];
-    readonly pagination = model<number>(this.paginationOptions[0]);
+    readonly paginationOptions: string[] = ["30", "50", "100"];
+    readonly pagination = model<string>(this.paginationOptions[0]);
 
     constructor() {}
 
@@ -39,4 +43,11 @@ export class ProductListComponent implements OnInit {
     alert(message: string) {
         alert(message);
     }
+
+    onPaginationChange(value: string | string[]) {
+        if (Array.isArray(value)) {
+            value = value[0];
+        }
+        this.pagination.set(value || this.paginationOptions[0]);
+    }  
 }

@@ -41,7 +41,6 @@ type OnChangeType = (value: boolean) => void;
           [class]="classes()"
           [checked]="checked"
           [disabled]="disabled()"
-          (blur)="onCheckboxBlur()"
           name="checkbox"
         />
         <z-icon

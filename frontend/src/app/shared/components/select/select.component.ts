@@ -3,69 +3,70 @@ import { TemplatePortal } from '@angular/cdk/portal';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   type AfterContentInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   contentChildren,
+  DestroyRef,
   ElementRef,
   forwardRef,
   inject,
+  Injector,
   input,
   model,
   type OnDestroy,
   output,
   PLATFORM_ID,
+  runInInjectionContext,
   signal,
   type TemplateRef,
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import type { ClassValue } from 'clsx';
+import { filter } from 'rxjs';
 
-import { ZardSelectItemComponent } from './select-item.component';
-import { selectContentVariants, selectTriggerVariants, selectVariants, type ZardSelectTriggerVariants } from './select.variants';
-import { isElementContentTruncated, mergeClasses, transform } from '@shared/utils/merge-classes';
-import { ZardBadgeComponent } from '../badge/badge.component';
-import { ZardIconComponent } from '../icon/icon.component';
+import { ZardSelectItemComponent } from '@shared/components/select/select-item.component';
+import {
+  selectContentVariants,
+  selectTriggerVariants,
+  selectVariants,
+  type ZardSelectSizeVariants,
+} from '@shared/components/select/select.variants';
+import { mergeClasses, transform } from '@shared/utils/merge-classes';
+import { ZardBadgeComponent } from '@shared/components/badge/badge.component';
+import { ZardIconComponent } from '@shared/components/icon/icon.component';
 
 type OnTouchedType = () => void;
 type OnChangeType = (value: string) => void;
 
+const COMPACT_MODE_WIDTH_THRESHOLD = 100;
+
 @Component({
   selector: 'z-select, [z-select]',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, OverlayModule, ZardBadgeComponent, ZardIconComponent],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ZardSelectComponent),
-      multi: true,
-    },
-  ],
-  host: {
-    '[attr.data-disabled]': 'zDisabled() ? "" : null',
-    '[attr.data-state]': 'isOpen() ? "open" : "closed"',
-    '[class]': 'classes()',
-    '(document:click)': 'onDocumentClick($event)',
-  },
   template: `
     <button
       type="button"
+      role="combobox"
+      aria-controls="dropdown"
       [class]="triggerClasses()"
       [disabled]="zDisabled()"
-      (click)="toggle()"
-      (keydown)="onTriggerKeydown($event)"
       [attr.aria-expanded]="isOpen()"
       [attr.aria-haspopup]="'listbox'"
-      [attr.data-state]="isOpen() ? 'open' : 'closed'"
       [attr.data-placeholder]="!zValue() ? '' : null"
+      (blur)="!isOpen() && isFocus.set(false)"
+      (click)="toggle()"
+      (focus)="onFocus()"
     >
       <span class="flex flex-1 flex-wrap items-center gap-2">
         @let labels = selectedLabels();
         @for (label of labels; track index; let index = $index) {
-          <ng-container *ngTemplateOutlet="labelsTemplate; context: { $implicit: label }"> </ng-container>
+          <ng-container *ngTemplateOutlet="labelsTemplate; context: { $implicit: label }" />
         } @empty {
           <span class="text-muted-foreground truncate">{{ zPlaceholder() }}</span>
         }
@@ -84,23 +85,47 @@ type OnChangeType = (value: string) => void;
     </ng-template>
 
     <ng-template #dropdownTemplate>
-      <div [class]="contentClasses()" role="listbox" [attr.data-state]="'open'" (keydown)="onDropdownKeydown($event)" tabindex="-1">
+      <div
+        id="dropdown"
+        [class]="contentClasses()"
+        role="listbox"
+        [attr.data-state]="'open'"
+        (keydown.{arrowdown,arrowup,enter,space,escape,home,end}.prevent)="onDropdownKeydown($event)"
+        tabindex="-1"
+      >
         <div class="p-1">
-          <ng-content></ng-content>
+          <ng-content />
         </div>
       </div>
     </ng-template>
   `,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => ZardSelectComponent),
+      multi: true,
+    },
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[attr.data-active]': 'isFocus() ? "" : null',
+    '[attr.data-disabled]': 'zDisabled() ? "" : null',
+    '[attr.data-state]': 'isOpen() ? "open" : "closed"',
+    '[class]': 'classes()',
+    '(keydown.{enter,space,arrowdown,arrowup,escape}.prevent)': 'onTriggerKeydown($event)',
+  },
 })
 export class ZardSelectComponent implements ControlValueAccessor, AfterContentInit, OnDestroy {
-  private readonly elementRef = inject(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
+  private readonly injector = inject(Injector);
   private readonly overlay = inject(Overlay);
   private readonly overlayPositionBuilder = inject(OverlayPositionBuilder);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly platformId = inject(PLATFORM_ID);
 
   readonly dropdownTemplate = viewChild.required<TemplateRef<void>>('dropdownTemplate');
-  protected readonly selectItems = contentChildren(ZardSelectItemComponent);
+  readonly selectItems = contentChildren(ZardSelectItemComponent);
 
   private overlayRef?: OverlayRef;
   private portal?: TemplatePortal;
@@ -111,13 +136,21 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
   readonly zMaxLabelCount = input<number>(1);
   readonly zMultiple = input<boolean>(false);
   readonly zPlaceholder = input<string>('Select an option...');
-  readonly zSize = input<ZardSelectTriggerVariants['zSize']>('default');
+  readonly zSize = input<ZardSelectSizeVariants>('default');
   readonly zValue = model<string | string[]>(this.zMultiple() ? [] : '');
 
   readonly zSelectionChange = output<string | string[]>();
 
   readonly isOpen = signal(false);
   readonly focusedIndex = signal<number>(-1);
+  protected readonly isFocus = signal(false);
+  protected readonly isCompact = signal(false);
+
+  protected onFocus(): void {
+    if (this.isCompact()) {
+      this.isFocus.set(true);
+    }
+  }
 
   // Compute the label based on selected value
   readonly selectedLabels = computed<string[]>(() => {
@@ -144,17 +177,26 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
       selectTriggerVariants({
         zSize: this.zSize(),
       }),
-      this.class(),
     ),
   );
 
   ngAfterContentInit() {
+    const hostWidth = this.elementRef.nativeElement.offsetWidth || 0;
     // Setup select host reference for each item
+    let i = 0;
     for (const item of this.selectItems()) {
       item.setSelectHost({
         selectedValue: () => (this.zMultiple() ? (this.zValue() as string[]) : [this.zValue() as string]),
         selectItem: (value: string, label: string) => this.selectItem(value, label),
+        navigateTo: () => this.navigateTo(item, i),
       });
+      item.zSize.set(this.zSize());
+      i++;
+
+      if (hostWidth <= COMPACT_MODE_WIDTH_THRESHOLD) {
+        this.isCompact.set(true);
+        item.zMode.set('compact');
+      }
     }
   }
 
@@ -162,71 +204,57 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
     this.destroyOverlay();
   }
 
-  onDocumentClick(event: Event) {
-    const target = event.target as Node;
-    const clickedInside = this.elementRef.nativeElement.contains(target);
-    const clickedInOverlay = this.overlayRef?.overlayElement?.contains(target);
-
-    if (!clickedInside && !clickedInOverlay) {
-      this.close();
-    }
-  }
-
-  onTriggerKeydown(event: KeyboardEvent) {
-    switch (event.key) {
+  onTriggerKeydown(event: Event) {
+    const { key } = event as KeyboardEvent;
+    switch (key) {
       case 'Enter':
       case ' ':
       case 'ArrowDown':
       case 'ArrowUp':
-        event.preventDefault();
         if (!this.isOpen()) {
           this.open();
         }
         break;
       case 'Escape':
         if (this.isOpen()) {
-          event.preventDefault();
           this.close();
         }
         break;
     }
   }
 
-  onDropdownKeydown(event: KeyboardEvent) {
+  onDropdownKeydown(e: Event) {
+    const { key } = e as KeyboardEvent;
     const items = this.getSelectItems();
 
-    switch (event.key) {
+    switch (key) {
       case 'ArrowDown':
-        event.preventDefault();
         this.navigateItems(1, items);
         break;
       case 'ArrowUp':
-        event.preventDefault();
         this.navigateItems(-1, items);
         break;
       case 'Enter':
       case ' ':
-        event.preventDefault();
         this.selectFocusedItem(items);
         break;
       case 'Escape':
-        event.preventDefault();
         this.close();
         this.focusButton();
         break;
       case 'Home':
-        event.preventDefault();
         this.focusFirstItem(items);
         break;
       case 'End':
-        event.preventDefault();
         this.focusLastItem(items);
         break;
     }
   }
 
   toggle() {
-    if (this.zDisabled()) return;
+    if (this.zDisabled()) {
+      return;
+    }
 
     if (this.isOpen()) {
       this.close();
@@ -251,7 +279,11 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
     this.onChange(value);
     this.zSelectionChange.emit(this.zValue());
 
-    if (!this.zMultiple()) {
+    if (this.zMultiple()) {
+      // in multiple mode it can happen that button changes size because of selection badges,
+      // which requires overlay position to update
+      this.updateOverlayPosition();
+    } else {
       this.close();
 
       // Return focus to the button after selection
@@ -259,6 +291,17 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
         this.focusButton();
       }, 0);
     }
+  }
+
+  private navigateTo(element: ZardSelectItemComponent, index: number): void {
+    this.focusedIndex.set(index);
+    this.updateItemFocus(this.getSelectItems(true), index);
+  }
+
+  private updateOverlayPosition(): void {
+    setTimeout(() => {
+      this.overlayRef?.updatePosition();
+    }, 0);
   }
 
   private provideLabelsForMultiselectMode(selectedValue: string[]): string[] {
@@ -281,7 +324,9 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
 
   private provideLabelForSingleSelectMode(selectedValue: string): string[] {
     const manualLabel = this.zLabel();
-    if (manualLabel) return [manualLabel];
+    if (manualLabel) {
+      return [manualLabel];
+    }
 
     const matchingItem = this.getMatchingItem(selectedValue);
     if (matchingItem) {
@@ -292,14 +337,18 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
   }
 
   private open() {
-    if (this.isOpen()) return;
+    if (this.isOpen()) {
+      return;
+    }
 
     // Create overlay if it doesn't exist
     if (!this.overlayRef) {
       this.createOverlay();
     }
 
-    if (!this.overlayRef) return;
+    if (!this.overlayRef) {
+      return;
+    }
 
     const hostWidth = this.elementRef.nativeElement.offsetWidth || 0;
 
@@ -312,14 +361,14 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
     this.overlayRef.attach(this.portal);
     this.overlayRef.updateSize({ width: hostWidth });
     this.isOpen.set(true);
+    this.updateFocusWhenNormalMode();
 
-    this.determinePortalWidth(hostWidth);
+    this.determinePortalWidthOnOpen(hostWidth);
+  }
 
-    // Focus dropdown after opening and position on selected item
-    setTimeout(() => {
-      this.focusDropdown();
-      this.focusSelectedItem();
-    }, 0);
+  private setFocusOnOpen(): void {
+    this.focusDropdown();
+    this.focusSelectedItem();
   }
 
   private close() {
@@ -329,38 +378,72 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
     this.isOpen.set(false);
     this.focusedIndex.set(-1);
     this.onTouched();
+    this.updateFocusWhenNormalMode();
+  }
+
+  private updateFocusWhenNormalMode(): void {
+    if (!this.isCompact()) {
+      this.isFocus.set(!this.isOpen());
+    }
   }
 
   private getMatchingItem(value: string): ZardSelectItemComponent | undefined {
     return this.selectItems()?.find(item => item.zValue() === value);
   }
 
-  private determinePortalWidth(portalWidth: number): void {
-    if (!this.overlayRef || !this.overlayRef.hasAttached()) return;
+  private determinePortalWidthOnOpen(portalWidth: number): void {
+    runInInjectionContext(this.injector, () => {
+      afterNextRender(() => {
+        if (!this.overlayRef || !this.overlayRef.hasAttached()) {
+          return;
+        }
 
-    const selectItems = this.selectItems();
-    let itemMaxWidth = 0;
-    for (const item of selectItems) {
-      itemMaxWidth = Math.max(itemMaxWidth, item.elementRef.nativeElement.scrollWidth);
-    }
+        const overlayPaneElement = this.overlayRef.overlayElement;
+        const textElements = Array.from(
+          overlayPaneElement.querySelectorAll<HTMLElement>(
+            'z-select-item > span.truncate, [z-select-item] > span.truncate',
+          ),
+        );
+        let isOverflow = false;
+        for (const textElement of textElements) {
+          if (textElement.scrollWidth > textElement.clientWidth + 1) {
+            isOverflow = true;
+            break;
+          }
+        }
 
-    const textContentElement = this.elementRef.nativeElement.querySelector('button > span > span') as HTMLElement;
-    const isOverflow = isElementContentTruncated(textContentElement);
+        if (!isOverflow) {
+          this.setFocusOnOpen();
+          return;
+        }
 
-    if (isOverflow && selectItems.length) {
-      const elementStyles = getComputedStyle(selectItems[0].elementRef.nativeElement);
-      const leftPadding = Number.parseFloat(elementStyles.getPropertyValue('padding-left')) || 0;
-      const rightPadding = Number.parseFloat(elementStyles.getPropertyValue('padding-right')) || 0;
-      itemMaxWidth += leftPadding + rightPadding;
-    }
+        const selectItems = this.selectItems();
+        let itemMaxWidth = 0;
+        for (const item of selectItems) {
+          itemMaxWidth = Math.max(itemMaxWidth, item.elementRef.nativeElement.scrollWidth);
+        }
 
-    itemMaxWidth = Math.max(itemMaxWidth, portalWidth);
-    this.overlayRef.updateSize({ width: itemMaxWidth });
-    this.overlayRef.updatePosition();
+        const [selectItem] = selectItems;
+        if (isOverflow && selectItem) {
+          const elementStyles = getComputedStyle(selectItem.elementRef.nativeElement);
+          const leftPadding = Number.parseFloat(elementStyles.getPropertyValue('padding-left')) || 0;
+          const rightPadding = Number.parseFloat(elementStyles.getPropertyValue('padding-right')) || 0;
+          itemMaxWidth += leftPadding + rightPadding;
+        }
+
+        itemMaxWidth = Math.max(itemMaxWidth, portalWidth);
+        this.overlayRef.updateSize({ width: itemMaxWidth });
+        this.overlayRef.updatePosition();
+
+        this.setFocusOnOpen();
+      });
+    });
   }
 
   private createOverlay() {
-    if (this.overlayRef) return; // Already created
+    if (this.overlayRef) {
+      return;
+    } // Already created
 
     if (isPlatformBrowser(this.platformId)) {
       try {
@@ -393,6 +476,16 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
           width: elementWidth,
           maxHeight: 384, // max-h-96 equivalent
         });
+        this.overlayRef
+          .outsidePointerEvents()
+          .pipe(
+            filter(event => !this.elementRef.nativeElement.contains(event.target)),
+            takeUntilDestroyed(this.destroyRef),
+          )
+          .subscribe(() => {
+            this.isFocus.set(false);
+            this.close();
+          });
       } catch (error) {
         console.error('Error creating overlay:', error);
       }
@@ -406,14 +499,20 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
     }
   }
 
-  private getSelectItems(): HTMLElement[] {
-    if (!this.overlayRef?.hasAttached()) return [];
+  private getSelectItems(ignoreFilter = false): HTMLElement[] {
+    if (!this.overlayRef?.hasAttached()) {
+      return [];
+    }
     const dropdownElement = this.overlayRef.overlayElement;
-    return Array.from(dropdownElement.querySelectorAll<HTMLElement>('z-select-item, [z-select-item]')).filter(item => item.dataset['disabled'] === undefined);
+    return Array.from(dropdownElement.querySelectorAll<HTMLElement>('z-select-item, [z-select-item]')).filter(
+      item => ignoreFilter || item.dataset['disabled'] === undefined,
+    );
   }
 
   private navigateItems(direction: number, items: HTMLElement[]) {
-    if (items.length === 0) return;
+    if (items.length === 0) {
+      return;
+    }
 
     const currentIndex = this.focusedIndex();
     let nextIndex = currentIndex + direction;
@@ -465,8 +564,10 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
       if (index === focusedIndex) {
         item.focus();
         item.setAttribute('aria-selected', 'true');
+        item.setAttribute('data-selected', 'true');
       } else {
         item.removeAttribute('aria-selected');
+        item.removeAttribute('data-selected');
       }
     }
   }
@@ -489,15 +590,19 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
 
   private focusSelectedItem() {
     const items = this.getSelectItems();
-    if (items.length === 0) return;
+    if (items.length === 0) {
+      return;
+    }
 
     // Find the index of the currently selected item
-    const selectedValue = this.zValue();
-    let selectedIndex = -1;
-
-    if (selectedValue) {
-      selectedIndex = items.findIndex(item => item.getAttribute('value') === selectedValue);
+    let selectedValue;
+    if (Array.isArray(this.zValue()) && this.zValue().length) {
+      [selectedValue] = this.zValue();
+    } else {
+      selectedValue = this.zValue();
     }
+
+    let selectedIndex = items.findIndex(item => item.getAttribute('value') === selectedValue);
 
     // If no item is selected, focus the first item
     if (selectedIndex === -1) {

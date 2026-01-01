@@ -27,9 +27,6 @@
       ],
       "@features/*": [
         "app/features/*"
-      ],
-      "@/*": [
-        "src/app/*"
       ]
     }
   },

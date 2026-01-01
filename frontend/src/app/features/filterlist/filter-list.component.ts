@@ -38,10 +38,10 @@ export class FilterListComponent implements OnInit {
     readonly categoryList = input<CategoryFilterDTO[]>([]);
     readonly categoryFilterValue = model<CategoryFilterValue[]>();
 
+    //TODO. Dummyjson doesnt support price filters
     readonly minPrice = input<number | null>(null);
     readonly maxPrice = input<number | null>(null);
-    //TODO. Dummyjson doesnt support price filters
-    readonly currentMinPrice = linkedSignal(() => this.minPrice() ?? null);
+    readonly priceSliderValue = model(this.minPrice());
 
     openFilters = ["prices", "categories"];
 
@@ -87,5 +87,23 @@ export class FilterListComponent implements OnInit {
                 { emitEvent: false }
             );
         });
+
+        const selected = this.categoryFilterValue();
+        if (selected && selected.length) {
+            this.selectCategories(selected);
+        }
     }
+
+    private selectCategories(selected: CategoryFilterValue[]) {
+        const selectedSet = selected.map((c) => c.id);
+        this.categoriesFormArray.forEach((group) => {
+            const idControl = group.get("id") as FormControl<string>;
+            const checkedControl = group.get("checked") as FormControl<boolean>;
+            const shouldBeChecked = selectedSet.includes(idControl.value);
+            if (checkedControl.value !== shouldBeChecked) {
+                checkedControl.setValue(shouldBeChecked, { emitEvent: false });
+            }
+        });
+    }
+    
 }

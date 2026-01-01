@@ -19,4 +19,5 @@ export class ProductComponent implements OnInit {
         const product = this.route.snapshot.data["data"];
         this.product.set(product);
     }
+
 }
