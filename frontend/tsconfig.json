@@ -27,6 +27,9 @@
       ],
       "@features/*": [
         "app/features/*"
+      ],
+      "@core/*": [
+        "app/core/*"
       ]
     }
   },

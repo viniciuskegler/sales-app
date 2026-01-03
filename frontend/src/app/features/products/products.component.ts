@@ -36,16 +36,16 @@ export class ProductsComponent implements OnInit {
     readonly filtersSheetTemplate = viewChild<TemplateRef<unknown>>("filtersSheet");
     private sheetRef: ZardSheetRef<unknown> | null = null;
 
-    params = computed(() => ({
+    readonly params = computed(() => ({
         limit: this.paginationValue(),
         categories: this.categoriesValue(),
     }));
 
-    resource = rxResource({
+    readonly resource = rxResource({
         params: this.params,
         stream: (params) => {
             const pageNumber = 0; // Always fetch first page on param change
-            this.getProducts(pageNumber, parseInt(params.params.limit, 10));
+            this.productsService.fetchProducts(pageNumber, parseInt(params.params.limit, 10));
             return this.productsService.productsObservable;
         },
     });
@@ -59,10 +59,6 @@ export class ProductsComponent implements OnInit {
     ngOnInit(): void {
         const categories = this.route.snapshot.data["data"];
         this.categoryList.set(categories);
-    }
-
-    getProducts(pagenumber: number, pagination: number): void {
-        this.productsService.fetchProducts(pagenumber, pagination);
     }
 
     openFiltersSheet(): void {

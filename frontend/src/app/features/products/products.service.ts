@@ -10,7 +10,6 @@ export class ProductsService {
 
     private readonly apiUrl = "https://dummyjson.com/products";
     private productsSubject = new BehaviorSubject<ProductResponse | null>(null);
-    // private lastPage = signal<number>(0);
     public productsObservable = this.productsSubject.asObservable();
 
     httpClient = inject(HttpClient);
@@ -44,5 +43,9 @@ export class ProductsService {
             }
         }
         return productObs;
+    }
+
+    getProductsByName(name: string): Observable<ProductResponse> {
+        return this.httpClient.get<ProductResponse>(`${this.apiUrl}/search?q=${name}&limit=5`)
     }
 }

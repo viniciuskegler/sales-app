@@ -69,6 +69,7 @@ import {
   Search,
   Settings,
   Shield,
+  ShoppingCart,
   Smartphone,
   Sparkles,
   Square,
@@ -192,6 +193,7 @@ export const ZARD_ICONS = {
   'user-plus': UserPlus,
   'credit-card': CreditCard,
   activity: Activity,
+  'shopping-cart': ShoppingCart
 } as const satisfies Record<string, LucideIconData>;
 
 export declare type ZardIcon = keyof typeof ZARD_ICONS | LucideIconData;

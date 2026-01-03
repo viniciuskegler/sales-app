@@ -1,0 +1,45 @@
+<div
+    zPopover
+    [zContent]="searchResultsTemplate"
+    zPlacement="bottom"
+    [zTrigger]="null"
+    [zVisible]="shouldShowPopover()"
+    class="flex h-[85%] flex-col justify-center">
+    <div class="flex w-full flex-row">
+        <input
+            id="productSearch"
+            class="text-secondary bg-primary"
+            z-input
+            [zStatus]="inputStatus()"
+            placeholder="Search a Product"
+            [formControl]="searchFormControl"
+            autocomplete="off"
+            (focusout)="showPopover.set(false)"
+            (focusin)="showPopover.set(true)"
+            />
+        @if (searchFormSignal() && searchFormSignal()!.length > 0 ) {
+            <z-icon
+                class="text-secondary ml-[-15px] content-center"
+                zType="x"
+                (click)="searchFormControl.reset()" />
+        }
+    </div>
+</div>
+
+<ng-template #searchResultsTemplate>
+    <div
+        class="flex w-[49vw] flex-col gap-y-[5px] overflow-y-auto rounded border p-2 bg-white max-lg:w-[74vw]">
+        @for (product of resource.value()?.products; track $index) {
+            <div
+                class="cursor-pointer rounded px-2 py-1"
+                (click)="navigateToProduct(product.id)">
+                <div class="flex flex-row items-center gap-x-[10px]">
+                    <img
+                        [src]="product.thumbnail"
+                        class="h-[50px] w-[50px] object-cover" />
+                    <div class="text-sm font-bold">{{ product.title }}</div>
+                </div>
+            </div>
+        }
+    </div>
+</ng-template>

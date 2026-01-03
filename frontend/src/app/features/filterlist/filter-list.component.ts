@@ -1,11 +1,4 @@
-import {
-    Component,
-    effect,
-    input,
-    linkedSignal,
-    model,
-    OnInit
-} from "@angular/core";
+import { Component, effect, input, model, OnInit } from "@angular/core";
 import { CategoryFilterDTO, CategoryFilterValue } from "./model/filters.model";
 import {
     FormArray,
@@ -16,8 +9,6 @@ import {
 import { ZardCheckboxComponent } from "@shared/components/checkbox/checkbox.component";
 import { ZardAccordionComponent } from "@shared/components/accordion/accordion.component";
 import { ZardAccordionItemComponent } from "@shared/components/accordion/accordion-item.component";
-import { ZardSliderComponent } from "@shared/components/slider/slider.component";
-import { CurrencyPipe } from "@angular/common";
 import { ZardIconComponent } from "@shared/components/icon/icon.component";
 import { toSignal } from "@angular/core/rxjs-interop";
 
@@ -29,19 +20,12 @@ import { toSignal } from "@angular/core/rxjs-interop";
         ZardAccordionComponent,
         ZardAccordionItemComponent,
         ZardCheckboxComponent,
-        ZardSliderComponent,
         ZardIconComponent,
-        CurrencyPipe,
     ],
 })
 export class FilterListComponent implements OnInit {
     readonly categoryList = input<CategoryFilterDTO[]>([]);
     readonly categoryFilterValue = model<CategoryFilterValue[]>();
-
-    //TODO. Dummyjson doesnt support price filters
-    readonly minPrice = input<number | null>(null);
-    readonly maxPrice = input<number | null>(null);
-    readonly priceSliderValue = model(this.minPrice());
 
     openFilters = ["prices", "categories"];
 
@@ -50,9 +34,7 @@ export class FilterListComponent implements OnInit {
     });
 
     readonly categoriesValues = toSignal(
-        this.filtersForm
-            .get("categories")!
-            .valueChanges
+        this.filtersForm.get("categories")!.valueChanges,
     );
 
     get categoriesFormArray(): FormGroup[] {
@@ -84,7 +66,7 @@ export class FilterListComponent implements OnInit {
                     name: new FormControl<string>(category.name),
                     checked: new FormControl<boolean>(false),
                 }),
-                { emitEvent: false }
+                { emitEvent: false },
             );
         });
 
@@ -105,5 +87,4 @@ export class FilterListComponent implements OnInit {
             }
         });
     }
-    
 }

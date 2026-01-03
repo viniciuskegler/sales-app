@@ -1,10 +1,18 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { AsyncPipe } from "@angular/common";
+import { Component } from "@angular/core";
+import { LayoutService } from "@core/services/layout-service.service";
+import { Observable } from "rxjs";
 
 @Component({
     standalone: true,
-    imports: [RouterLink],
-    selector: 'app-footer',
-    templateUrl: 'footer.component.html'
+    selector: "app-footer",
+    templateUrl: "footer.component.html",
+    imports: [AsyncPipe],
 })
-export class FooterComponent {}
+export class FooterComponent {
+    showFooterObs: Observable<boolean>;
+
+    constructor(private layoutService: LayoutService) {
+        this.showFooterObs = layoutService.showFooterObservable;
+    }
+}
