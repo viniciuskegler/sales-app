@@ -5,9 +5,10 @@ import {
     provideClientHydration,
     withEventReplay,
 } from '@angular/platform-browser';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideZard } from '@shared/core/provider/providezard';
 import { loggingInterceptor } from './core/interceptors/log-interceptor';
+import { IMAGE_LOADER, ImageLoaderConfig } from '@angular/common';
 
 
 export const appConfig: ApplicationConfig = {
@@ -15,7 +16,13 @@ export const appConfig: ApplicationConfig = {
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
         provideClientHydration(withEventReplay()),
-        provideHttpClient(withInterceptors([loggingInterceptor])),
-        provideZard()
+        provideHttpClient(withInterceptors([loggingInterceptor]), withFetch()),
+        provideZard(),
+        {
+            provide: IMAGE_LOADER,
+            useValue: (config: ImageLoaderConfig) => {
+                return config.src;
+            },
+        },
     ],
 };

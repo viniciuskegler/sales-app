@@ -5,12 +5,12 @@ import { BehaviorSubject, Observable, of } from "rxjs";
 
 @Injectable({ providedIn: "root" })
 export class ProductsService {
-    //TODO guardar as infos de paginação em uma variavel do tipo de paginação 
-    //e as infos do produto em si em outra, ai quando faz a chamada pega a pagina, o skip e faz os calculos.
-
     private readonly apiUrl = "https://dummyjson.com/products";
     private productsSubject = new BehaviorSubject<ProductResponse | null>(null);
     public productsObservable = this.productsSubject.asObservable();
+
+    private isLoadingSubject = new BehaviorSubject<boolean>(false);
+    public isLoadingObservable = this.isLoadingSubject.asObservable();
 
     httpClient = inject(HttpClient);
 
@@ -19,12 +19,15 @@ export class ProductsService {
     }
 
     fetchProducts(page: number, limit: number): void {
+        this.startLoading();
+        this.productsSubject.next(null);
         const skip = page * limit;
         this.httpClient
             .get<ProductResponse>(`${this.apiUrl}?limit=${limit}&skip=${skip}`)
             .subscribe((response) => {
                 this.productsSubject.next(response);
-            });
+            })
+            .add(() => this.finishLoading());
     }
 
     fetchProductById(productId: number): Observable<ProductDTO> {
@@ -46,6 +49,16 @@ export class ProductsService {
     }
 
     getProductsByName(name: string): Observable<ProductResponse> {
-        return this.httpClient.get<ProductResponse>(`${this.apiUrl}/search?q=${name}&limit=5`)
+        return this.httpClient.get<ProductResponse>(
+            `${this.apiUrl}/search?q=${name}&limit=5`,
+        );
+    }
+
+    startLoading(): void {
+        this.isLoadingSubject.next(true);
+    }
+
+    finishLoading(): void {
+        this.isLoadingSubject.next(false);
     }
 }

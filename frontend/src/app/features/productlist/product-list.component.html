@@ -1,4 +1,4 @@
-<div class="flex h-full w-full flex-col gap-y-[10px] items-center">
+<div class="flex h-full w-full flex-col items-center gap-y-[10px]">
     <div class="flex w-[90%] flex-row justify-between gap-x-[10px]">
         <div>
             <div>{{ products()?.total }} products</div>
@@ -16,16 +16,17 @@
             </z-select>
         </div>
     </div>
-    <div
-        class="flex w-full flex-row flex-wrap justify-center gap-x-[5px] gap-y-[10px]">
-        @if (products() && products()?.products) {
+    @if (!isLoading() && products() && products()?.products) {
+        <div
+            class="flex w-full flex-row flex-wrap justify-center gap-x-[5px] gap-y-[10px]">
             @for (product of products()!.products; track product.id) {
                 <z-card class="flex w-[280px] flex-col justify-between">
                     <div card-content>
                         <a [routerLink]="['/product', product.id]">
                             <img
-                                [src]="product.thumbnail"
-                                class="h-[170px] w-full" />
+                                [ngSrc]="product.thumbnail"
+                                width="230"
+                                height="230"/>
                             <div class="text-2xl">
                                 {{ product.price | currency }}
                             </div>
@@ -33,16 +34,22 @@
                         </a>
                     </div>
                     <div card-footer class="w-full">
-                        <button z-button zFull (click)="alert('asdsaodkas')">
+                        <button z-button zFull>
                             Add to Cart
                         </button>
                     </div>
                 </z-card>
             }
-        } @else {
-            <ng-template #loading>
-                <div>Omaga its loading</div>
-            </ng-template>
-        }
-    </div>
+        </div>
+        <z-pagination
+            class="mt-auto mb-[20px]"
+            [zTotal]="totalPages()"
+            [(zPageIndex)]="currentPage" />
+    } @else {
+        <ng-template #loading>
+            <div class="h-full w-full">
+                <z-loader />
+            </div>
+        </ng-template>
+    }
 </div>

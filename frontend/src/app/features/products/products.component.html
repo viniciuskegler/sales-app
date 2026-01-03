@@ -15,7 +15,11 @@
         id="productList"
         class="w-full lg:w-7/8"
         [products]="resource.value() ?? null"
-        [(pagination)]="paginationValue" />
+        [pagination]="paginationValue()" 
+        (paginationChange)="onPaginationChange($event)"
+        [(currentPage)]="currentPageValue"
+        [isLoading]="isLoading()"
+        />
 </div>
 
 <ng-template #filtersSheet>
