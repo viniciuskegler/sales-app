@@ -1,5 +1,5 @@
 import { AsyncPipe } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { LayoutService } from "@core/services/layout-service.service";
 import { Observable } from "rxjs";
 
@@ -12,7 +12,9 @@ import { Observable } from "rxjs";
 export class FooterComponent {
     showFooterObs: Observable<boolean>;
 
-    constructor(private layoutService: LayoutService) {
-        this.showFooterObs = layoutService.showFooterObservable;
+    layoutService = inject(LayoutService);
+
+    constructor() {
+        this.showFooterObs = this.layoutService.showFooterObservable;
     }
 }

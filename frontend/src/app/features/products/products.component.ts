@@ -25,7 +25,7 @@ import { ZardSheetService } from "@shared/components/sheet/sheet.service";
 import { ZardSheetRef } from "@shared/components/sheet/sheet-ref";
 
 @Component({
-    selector: "products-component",
+    selector: "app-products-component",
     templateUrl: "products.component.html",
     styleUrl: "products.component.css",
     changeDetection: ChangeDetectionStrategy.OnPush,

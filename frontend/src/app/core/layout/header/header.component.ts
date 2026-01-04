@@ -1,5 +1,5 @@
 import { AsyncPipe } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { LayoutService } from "@core/services/layout-service.service";
 import { SearchBarComponent } from "@features/searchbar/search-bar.component";
 import { ZardIconComponent } from "@shared/components/icon/icon.component";
@@ -14,7 +14,9 @@ import { Observable } from "rxjs";
 export class HeaderComponent {
     showHeaderObs: Observable<boolean>;
 
-    constructor(private layoutService: LayoutService) {
-        this.showHeaderObs = layoutService.showHeaderObservable;
+    layoutService = inject(LayoutService);
+
+    constructor() {
+        this.showHeaderObs = this.layoutService.showHeaderObservable;
     }
 }

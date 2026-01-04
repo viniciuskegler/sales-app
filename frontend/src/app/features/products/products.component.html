@@ -6,12 +6,15 @@
             <z-icon zType="list-filter" />
         </button>
     </div>
-    <filter-list
+    <app-filter-list
         id="filterList"
         class="hidden w-1/8 lg:block"
         [categoryList]="categoryList()"
         [(categoryFilterValue)]="categoriesValue" />
-    <product-list
+    <app-product-list
+
+
+    
         id="productList"
         class="w-full lg:w-7/8"
         [products]="resource.value() ?? null"
@@ -23,7 +26,7 @@
 </div>
 
 <ng-template #filtersSheet>
-    <filter-list
+    <app-filter-list
         [categoryList]="categoryList()"
         [(categoryFilterValue)]="categoriesValue" />
 </ng-template>

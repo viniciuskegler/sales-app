@@ -12,13 +12,13 @@ export function loggingInterceptor(
 ): Observable<HttpEvent<unknown>> {
     return next(req).pipe(
         tap({
-            next: (event: HttpEvent<any>) => {
+            next: (event: HttpEvent<unknown>) => {
                 if (event instanceof HttpResponse) {
                     console.log("HTTP Request:", req);
                     console.log("Response Body:", event.body);
                 }
             },
-            error: (error: any) => {
+            error: (error: unknown) => {
                 console.error("HTTP Request Error:", error);
             },
         }),

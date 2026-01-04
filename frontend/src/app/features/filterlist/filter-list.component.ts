@@ -13,7 +13,7 @@ import { ZardIconComponent } from "@shared/components/icon/icon.component";
 import { toSignal } from "@angular/core/rxjs-interop";
 
 @Component({
-    selector: "filter-list",
+    selector: "app-filter-list",
     templateUrl: "filter-list.component.html",
     imports: [
         ReactiveFormsModule,

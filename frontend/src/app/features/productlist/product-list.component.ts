@@ -11,7 +11,7 @@ import { ZardPaginationComponent } from "@shared/components/pagination/paginatio
 
 @Component({
     standalone: true,
-    selector: "product-list",
+    selector: "app-product-list",
     templateUrl: "product-list.component.html",
     styleUrl: "product-list.component.css",
     imports: [

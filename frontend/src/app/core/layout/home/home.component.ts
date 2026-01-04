@@ -1,12 +1,10 @@
-import { Component } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Component } from "@angular/core";
+import { RouterOutlet } from "@angular/router";
 @Component({
     standalone: true,
-    selector: 'home-component',
-    templateUrl: 'home.component.html',
-    styleUrl: 'home.component.css',
+    selector: "app-home-component",
+    templateUrl: "home.component.html",
+    styleUrl: "home.component.css",
     imports: [RouterOutlet],
 })
-export class HomeComponent {
-    constructor(private readonly router: Router){}
-}
+export class HomeComponent {}

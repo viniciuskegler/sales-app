@@ -9,7 +9,7 @@ import { debounceTime, distinctUntilChanged, of } from "rxjs";
 import { Router } from "@angular/router";
 
 @Component({
-    selector: "search-bar",
+    selector: "app-search-bar",
     templateUrl: "search-bar.component.html",
     imports: [
         ReactiveFormsModule,

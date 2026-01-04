@@ -5,7 +5,7 @@ import { ProductDTO } from "../model/products.model";
 
 @Component({
     standalone: true,
-    selector: "product-component",
+    selector: "app-product-component",
     templateUrl: "product.component.html",
     styleUrl: "product.component.css",
     imports: [CommonModule],
@@ -19,5 +19,4 @@ export class ProductComponent implements OnInit {
         const product = this.route.snapshot.data["data"];
         this.product.set(product);
     }
-
 }
