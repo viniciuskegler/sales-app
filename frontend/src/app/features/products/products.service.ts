@@ -5,7 +5,7 @@ import { BehaviorSubject, Observable, of } from "rxjs";
 
 @Injectable({ providedIn: "root" })
 export class ProductsService {
-    private readonly apiUrl = "https://dummyjson.com/products";
+    private readonly apiUrl = "api/products";
     private productsSubject = new BehaviorSubject<ProductResponse | null>(null);
     public productsObservable = this.productsSubject.asObservable();
 
@@ -23,7 +23,7 @@ export class ProductsService {
         this.productsSubject.next(null);
         const skip = page * limit;
         this.httpClient
-            .get<ProductResponse>(`${this.apiUrl}?limit=${limit}&skip=${skip}`)
+            .get<ProductResponse>(`${this.apiUrl}?pageSize=${limit}&page=${skip}`)
             .subscribe((response) => {
                 this.productsSubject.next(response);
             })

@@ -1,0 +1,54 @@
+databaseChangeLog:
+- changeSet:
+    id: 006-load-products
+    author: migration
+    changes:
+      - loadData:
+          file: db/changelog/products/csvs/product.csv
+          tableName: product
+          separator: ","
+          encoding: UTF-8
+
+- changeSet:
+    id: 007-load-tags
+    author: migration
+    changes:
+      - loadData:
+          file: db/changelog/products/csvs/tag.csv
+          tableName: tag
+          separator: ","
+          encoding: UTF-8
+
+- changeSet:
+    id: 008-load-product-tags
+    author: migration
+    changes:
+      - loadData:
+          file: db/changelog/products/csvs/product_tag.csv
+          tableName: product_tag
+          separator: ","
+          encoding: UTF-8
+
+- changeSet:
+    id: 009-load-product-images
+    author: migration
+    changes:
+      - loadData:
+          file: db/changelog/products/csvs/product_image.csv
+          tableName: product_image
+          separator: ","
+          encoding: UTF-8
+
+- changeSet:
+    id: 010-load-reviews
+    author: migration
+    changes:
+      - loadData:
+          file: db/changelog/products/csvs/review.csv
+          tableName: review
+          separator: ","
+          encoding: UTF-8
+          columns:
+              - column:
+                    name: comment
+                    type: STRING

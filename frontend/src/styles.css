@@ -21,7 +21,7 @@ footer {
     width: 100%;
 }
 
-home-component {
+app-home-component {
     display: flex;
     flex-grow: 1;
     flex-direction: column;

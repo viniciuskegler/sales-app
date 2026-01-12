@@ -1,0 +1,215 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-product-table
+      author: migration
+      changes:
+        - createTable:
+            tableName: product
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  generationType: always
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: title
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+
+              - column:
+                  name: category
+                  type: VARCHAR(25)
+
+              - column:
+                  name: price
+                  type: NUMERIC(10,2)
+
+              - column:
+                  name: discount_percentage
+                  type: NUMERIC(5,2)
+
+              - column:
+                  name: rating
+                  type: NUMERIC(3,2)
+
+              - column:
+                  name: stock
+                  type: INT
+
+              - column:
+                  name: brand
+                  type: VARCHAR(20)
+
+              - column:
+                  name: sku
+                  type: VARCHAR(15)
+                  constraints:
+                    unique: true
+
+              - column:
+                  name: thumbnail
+                  type: TEXT
+
+  - changeSet:
+      id: 002-create-review-table
+      author: migration
+      changes:
+        - createTable:
+            tableName: review
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  generationType: always
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: rating
+                  type: INT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: comment
+                  type: VARCHAR(255)
+
+              - column:
+                  name: review_date
+                  type: TIMESTAMP
+
+              - column:
+                  name: reviewer_name
+                  type: VARCHAR(80)
+
+              - column:
+                  name: reviewer_email
+                  type: VARCHAR(80)
+
+        - addForeignKeyConstraint:
+            baseTableName: review
+            baseColumnNames: product_id
+            referencedTableName: product
+            referencedColumnNames: id
+            constraintName: fk_review_product
+            onDelete: CASCADE
+
+  - changeSet:
+      id: 003-create-tag-table
+      author: migration
+      changes:
+        - createTable:
+            tableName: tag
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  generationType: always
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: name
+                  type: VARCHAR(25)
+                  constraints:
+                    nullable: false
+                    unique: true
+
+  - changeSet:
+      id: 004-create-product-tag-table
+      author: migration
+      changes:
+        - createTable:
+            tableName: product_tag
+            columns:
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: tag_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: product_tag
+            columnNames: product_id, tag_id
+            constraintName: pk_product_tag
+
+        - addForeignKeyConstraint:
+            baseTableName: product_tag
+            baseColumnNames: product_id
+            referencedTableName: product
+            referencedColumnNames: id
+            constraintName: fk_product_tag_product
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: product_tag
+            baseColumnNames: tag_id
+            referencedTableName: tag
+            referencedColumnNames: id
+            constraintName: fk_product_tag_tag
+            onDelete: CASCADE
+
+  - changeSet:
+      id: 005-create-product-image-table
+      author: migration
+      changes:
+        - createTable:
+            tableName: product_image
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  generationType: always
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: url
+                  type: TEXT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: INT
+
+        - addForeignKeyConstraint:
+            baseTableName: product_image
+            baseColumnNames: product_id
+            referencedTableName: product
+            referencedColumnNames: id
+            constraintName: fk_product_image_product
+            onDelete: CASCADE

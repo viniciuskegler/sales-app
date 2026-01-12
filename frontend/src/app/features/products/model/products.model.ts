@@ -1,4 +1,3 @@
-//TODO REMOVER PAGINAÇÃO DAQUI (ESTUDAR QUAL A MELHOR ABORDAGEM)
 export interface ProductResponse {
     products: ProductDTO[];
     total: number;
