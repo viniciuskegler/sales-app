@@ -1,7 +1,7 @@
 <div class="flex h-full w-full flex-col items-center gap-y-[10px]">
     <div class="flex w-[90%] flex-row justify-between gap-x-[10px]">
         <div>
-            <div>{{ products()?.total }} products</div>
+            <div>{{ totalProducts() }} products</div>
         </div>
         <div class="">
             <z-select
@@ -16,10 +16,10 @@
             </z-select>
         </div>
     </div>
-    @if (!isLoading() && products() && products()?.products) {
+    @if (!isLoading() && products() && products()?.content) {
         <div
             class="flex w-full flex-row flex-wrap justify-center gap-x-[5px] gap-y-[10px]">
-            @for (product of products()!.products; track product.id) {
+            @for (product of products()!.content; track product.id) {
                 <z-card class="flex w-[280px] flex-col justify-between">
                     <div card-content>
                         <a [routerLink]="['/product', product.id]">

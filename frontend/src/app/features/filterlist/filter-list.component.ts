@@ -62,7 +62,7 @@ export class FilterListComponent implements OnInit {
         categories.forEach((category: CategoryFilterDTO) => {
             categoriesFormArray.push(
                 new FormGroup({
-                    id: new FormControl<string>(category.slug),
+                    id: new FormControl<string>(category.value),
                     name: new FormControl<string>(category.name),
                     checked: new FormControl<boolean>(false),
                 }),

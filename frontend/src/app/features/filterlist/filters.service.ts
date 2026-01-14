@@ -5,7 +5,7 @@ import { CategoryFilterDTO } from "./model/filters.model";
 
 @Injectable({ providedIn: "root" })
 export class FiltersService {
-    private readonly apiUrl = "https://dummyjson.com/products/categories";
+    private readonly apiUrl = "/api/products/categories";
 
     httpService = inject(HttpClient);
 

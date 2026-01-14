@@ -61,7 +61,7 @@ export class SearchBarComponent {
     });
 
     readonly shouldShowPopover = computed(
-        () => !!(this.resource.value()?.products?.length && this.showPopover()),
+        () => !!(this.resource.value()?.content?.length && this.showPopover()),
     );
 
     productsService = inject(ProductsService);

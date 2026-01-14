@@ -1,10 +1,6 @@
-export interface ProductResponse {
-    products: ProductDTO[];
-    total: number;
-    skip: number;
-    limit: number;
-}
+import { PagedResponse } from "@core/model/pagination.model";
 
+export type ProductResponse = PagedResponse<ProductDTO>;
 export interface ProductDTO {
     id: number;
     title: string;

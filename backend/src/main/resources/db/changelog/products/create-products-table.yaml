@@ -24,14 +24,20 @@ databaseChangeLog:
               - column:
                   name: description
                   type: VARCHAR(255)
+                  constraints:
+                    nullable: false
 
               - column:
                   name: category
                   type: VARCHAR(25)
+                  constraints:
+                    nullable: false
 
               - column:
                   name: price
                   type: NUMERIC(10,2)
+                  constraints:
+                    nullable: false
 
               - column:
                   name: discount_percentage
@@ -48,12 +54,15 @@ databaseChangeLog:
               - column:
                   name: brand
                   type: VARCHAR(20)
+                  constraints:
+                    nullable: false
 
               - column:
                   name: sku
                   type: VARCHAR(15)
                   constraints:
                     unique: true
+                    nullable: false
 
               - column:
                   name: thumbnail
@@ -94,14 +103,20 @@ databaseChangeLog:
               - column:
                   name: review_date
                   type: TIMESTAMP
+                  constraints:
+                    nullable: false
 
               - column:
                   name: reviewer_name
                   type: VARCHAR(80)
+                  constraints:
+                    nullable: false
 
               - column:
                   name: reviewer_email
                   type: VARCHAR(80)
+                  constraints:
+                    nullable: false
 
         - addForeignKeyConstraint:
             baseTableName: review

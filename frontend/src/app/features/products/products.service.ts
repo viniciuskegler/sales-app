@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { ProductDTO, ProductResponse } from "./model/products.model";
-import { BehaviorSubject, Observable, of } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 
 @Injectable({ providedIn: "root" })
 export class ProductsService {
@@ -21,9 +21,10 @@ export class ProductsService {
     fetchProducts(page: number, limit: number): void {
         this.startLoading();
         this.productsSubject.next(null);
-        const skip = page * limit;
         this.httpClient
-            .get<ProductResponse>(`${this.apiUrl}?pageSize=${limit}&page=${skip}`)
+            .get<ProductResponse>(
+                `${this.apiUrl}?page=${page}&pageSize=${limit}`,
+            )
             .subscribe((response) => {
                 this.productsSubject.next(response);
             })
@@ -35,22 +36,12 @@ export class ProductsService {
     }
 
     getProductById(productId: number): Observable<ProductDTO> {
-        let productObs: Observable<ProductDTO> =
-            this.fetchProductById(productId);
-        if (this.getCachedProducts() != null) {
-            const cachedProduct = this.getCachedProducts()!.products.find(
-                (product) => product.id === productId,
-            );
-            if (cachedProduct) {
-                productObs = of(cachedProduct);
-            }
-        }
-        return productObs;
+        return this.fetchProductById(productId);
     }
 
     getProductsByName(name: string): Observable<ProductResponse> {
         return this.httpClient.get<ProductResponse>(
-            `${this.apiUrl}/search?q=${name}&limit=5`,
+            `${this.apiUrl}?title=${name}&pageSize=5`,
         );
     }
 

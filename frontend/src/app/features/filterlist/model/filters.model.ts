@@ -1,7 +1,6 @@
 export interface CategoryFilterDTO {
-    id: number;
-    slug: string;
     name: string;
+    value: string;
 }
 
 export interface CategoryFilterValue {

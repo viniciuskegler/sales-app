@@ -1,18 +1,25 @@
 package com.viniciuskegler.salesapp.services;
 
 import com.viniciuskegler.salesapp.dto.ProductCategoryDTO;
+import com.viniciuskegler.salesapp.dto.ProductDTO;
+import com.viniciuskegler.salesapp.dto.ProductDetailsDTO;
+import com.viniciuskegler.salesapp.dto.mapper.ProductMapper;
 import com.viniciuskegler.salesapp.enums.SortOrder;
 import com.viniciuskegler.salesapp.exception.RecordNotFoundException;
-import com.viniciuskegler.salesapp.model.Product;
 import com.viniciuskegler.salesapp.repository.ProductRepository;
+import com.viniciuskegler.salesapp.repository.specification.ProductSpecification;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.List;
 
 
 @Validated
@@ -20,28 +27,38 @@ import org.springframework.validation.annotation.Validated;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
+        this.productMapper = productMapper;
     }
 
-    public Page<Product> getProducts(Integer page, Integer pageSize, String sortBy,
-                                     SortOrder sortOrder) {
+    public Page<ProductDTO> getProducts(List<String> categories,
+                                        String title,
+                                        Integer page,
+                                        Integer pageSize,
+                                        String sortBy,
+                                        SortOrder sortOrder) {
         Sort sort = Sort.by(sortBy);
-        if(sortOrder.equals(SortOrder.ASC)){
+        if (sortOrder.equals(SortOrder.ASC)) {
             sort = sort.ascending();
         } else {
             sort = sort.descending();
         }
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
-        return productRepository.findAll(pageable);
+        return productRepository.findAll(Specification.where(ProductSpecification.hasCategory(categories))
+                        .and(ProductSpecification.hasTitleLike(title)), PageRequest.of(page, pageSize, sort))
+                .map(productMapper::toProductDTO);
     }
 
-    public Product findById(@NotNull @Positive Long id){
-        return productRepository.findById(id).orElseThrow(() -> new RecordNotFoundException(id));
+    public ProductDetailsDTO findById(@NotNull @Positive Long id) {
+        return productRepository.findById(id).map(productMapper::toProductDetailsDTO)
+                .orElseThrow(() -> new RecordNotFoundException(id));
     }
 
-    public ProductCategoryDTO getCategories(){
-        return null;
+    public List<ProductCategoryDTO> getAllProductsCategories() {
+        return productRepository.getAllProductsCategories().stream().map(cat ->
+                new ProductCategoryDTO(WordUtils.capitalize(cat.replace("-", " ")), cat)
+        ).toList();
     }
 }
