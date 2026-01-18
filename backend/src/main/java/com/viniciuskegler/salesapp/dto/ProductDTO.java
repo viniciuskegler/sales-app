@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.Length;
 import java.math.BigDecimal;
 
 public record ProductDTO(
+        @Positive
         Long id,
 
         @NotNull

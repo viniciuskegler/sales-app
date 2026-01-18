@@ -2,6 +2,7 @@ package com.viniciuskegler.salesapp.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.*;
 
 import java.io.Serializable;
@@ -22,11 +23,13 @@ public class Product implements Serializable {
     @Column(length = 50, nullable = false)
     private String title;
 
+    @Column(nullable = false)
     private String description;
 
-    @Column(length = 25)
+    @Column(length = 25, nullable = false)
     private String category;
 
+    @Column(nullable = false)
     private BigDecimal price;
 
     @Column(name = "discount_percentage")
@@ -36,14 +39,16 @@ public class Product implements Serializable {
 
     private Integer stock;
 
-    @Column(length = 20)
+    @Column(length = 20, nullable = false)
     private String brand;
 
-    @Column(length = 15)
+    @Column(length = 15, nullable = false)
     private String sku;
 
+    @Column(nullable = false)
     private String thumbnail;
 
+    @Valid
     @JsonManagedReference
     @OneToMany(mappedBy= "product", cascade = CascadeType.ALL)
     private Set<Review> reviews;

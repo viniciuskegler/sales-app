@@ -67,6 +67,8 @@ databaseChangeLog:
               - column:
                   name: thumbnail
                   type: TEXT
+                  constraints:
+                    nullable: false
 
   - changeSet:
       id: 002-create-review-table

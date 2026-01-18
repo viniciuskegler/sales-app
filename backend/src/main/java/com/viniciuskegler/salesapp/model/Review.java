@@ -25,14 +25,15 @@ public class Review implements Serializable {
     @Column(nullable = false)
     private Integer rating;
 
+    @Column(nullable = false)
     private String comment;
 
     @Column(name = "review_date")
     private LocalDateTime reviewDate;
 
-    @Column(name = "reviewer_name", length = 80)
+    @Column(name = "reviewer_name", length = 80, nullable = false)
     private String reviewerName;
 
-    @Column(name = "reviewer_email", length = 80)
+    @Column(name = "reviewer_email", length = 80, nullable = false)
     private String reviewerEmail;
 }
