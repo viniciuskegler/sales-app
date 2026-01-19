@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { FooterComponent } from "@layout/footer/footer.component";
 import { HeaderComponent } from "@layout/header/header.component";
+import { environment } from "environments/environment";
 
 @Component({
     selector: "app-root",
@@ -10,5 +11,5 @@ import { HeaderComponent } from "@layout/header/header.component";
     styleUrl: "./app.component.css",
 })
 export class AppComponent {
-    title = "SalesApp";
+    title = environment.name;
 }
