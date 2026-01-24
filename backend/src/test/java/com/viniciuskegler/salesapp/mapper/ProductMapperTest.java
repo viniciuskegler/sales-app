@@ -6,12 +6,8 @@ import com.viniciuskegler.salesapp.product.dto.ReviewDTO;
 import com.viniciuskegler.salesapp.product.dto.mapper.ProductMapper;
 import com.viniciuskegler.salesapp.product.Product;
 import com.viniciuskegler.salesapp.product.Review;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,13 +16,14 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
-@ActiveProfiles("test")
-public class ProductMapperTest {
+class ProductMapperTest {
 
-    @Autowired
     private ProductMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = new ProductMapper();
+    }
 
     @Test
     void toProductDTO_mapsBasicFields() {
@@ -41,7 +38,7 @@ public class ProductMapperTest {
         assertNotNull(dto);
         assertEquals(42L, dto.id());
         assertEquals("Test Product", dto.title());
-        product.setPrice(BigDecimal.valueOf(19.95));
+        assertEquals(BigDecimal.valueOf(19.95), dto.price());
         assertEquals("thumb.png", dto.thumbnail());
     }
 
