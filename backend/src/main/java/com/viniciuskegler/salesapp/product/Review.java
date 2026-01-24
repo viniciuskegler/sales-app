@@ -1,4 +1,4 @@
-package com.viniciuskegler.salesapp.model;
+package com.viniciuskegler.salesapp.product;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;

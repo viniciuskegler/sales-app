@@ -1,26 +1,26 @@
-package com.viniciuskegler.salesapp.controller;
+package com.viniciuskegler.salesapp.product;
 
-import com.viniciuskegler.salesapp.dto.ProductCategoryDTO;
-import com.viniciuskegler.salesapp.dto.ProductDTO;
-import com.viniciuskegler.salesapp.dto.ProductDetailsDTO;
-import com.viniciuskegler.salesapp.enums.SortOrder;
-import com.viniciuskegler.salesapp.services.ProductService;
+import com.viniciuskegler.salesapp.product.dto.ProductCategoryDTO;
+import com.viniciuskegler.salesapp.product.dto.ProductDTO;
+import com.viniciuskegler.salesapp.product.dto.ProductDetailsDTO;
+import com.viniciuskegler.salesapp.shared.enums.SortOrder;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/api/products")
 public class ProductsController {
 
-    private final ProductService productService;
+    private final ProductsService productsService;
 
-    public ProductsController(ProductService productService) {
-        this.productService = productService;
+    public ProductsController(ProductsService productsService) {
+        this.productsService = productsService;
     }
 
     @GetMapping
@@ -32,16 +32,16 @@ public class ProductsController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") SortOrder sortOrder
     ) {
-        return productService.getProducts(categories, title, page, pageSize, sortBy, sortOrder);
+        return productsService.getProducts(categories, title, page, pageSize, sortBy, sortOrder);
     }
 
     @GetMapping("/{id}")
     public ProductDetailsDTO findById(@PathVariable Long id) {
-        return productService.findById(id);
+        return productsService.findById(id);
     }
 
     @GetMapping("/categories")
     public List<ProductCategoryDTO> getAllProductsCategories() {
-        return productService.getAllProductsCategories();
+        return productsService.getAllProductsCategories();
     }
 }

@@ -1,11 +1,10 @@
-package com.viniciuskegler.salesapp.dto.mapper;
+package com.viniciuskegler.salesapp.product.dto.mapper;
 
-import com.viniciuskegler.salesapp.dto.ProductDTO;
-import com.viniciuskegler.salesapp.dto.ProductDetailsDTO;
-import com.viniciuskegler.salesapp.dto.ReviewDTO;
-import com.viniciuskegler.salesapp.model.Product;
-import com.viniciuskegler.salesapp.model.Review;
-import jakarta.validation.constraints.*;
+import com.viniciuskegler.salesapp.product.dto.ProductDTO;
+import com.viniciuskegler.salesapp.product.dto.ProductDetailsDTO;
+import com.viniciuskegler.salesapp.product.dto.ReviewDTO;
+import com.viniciuskegler.salesapp.product.Product;
+import com.viniciuskegler.salesapp.product.Review;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;

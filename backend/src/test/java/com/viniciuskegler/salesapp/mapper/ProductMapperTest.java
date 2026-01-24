@@ -1,14 +1,17 @@
 package com.viniciuskegler.salesapp.mapper;
 
-import com.viniciuskegler.salesapp.dto.ProductDTO;
-import com.viniciuskegler.salesapp.dto.ProductDetailsDTO;
-import com.viniciuskegler.salesapp.dto.ReviewDTO;
-import com.viniciuskegler.salesapp.dto.mapper.ProductMapper;
-import com.viniciuskegler.salesapp.model.Product;
-import com.viniciuskegler.salesapp.model.Review;
+import com.viniciuskegler.salesapp.product.dto.ProductDTO;
+import com.viniciuskegler.salesapp.product.dto.ProductDetailsDTO;
+import com.viniciuskegler.salesapp.product.dto.ReviewDTO;
+import com.viniciuskegler.salesapp.product.dto.mapper.ProductMapper;
+import com.viniciuskegler.salesapp.product.Product;
+import com.viniciuskegler.salesapp.product.Review;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,6 +21,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
+@ActiveProfiles("test")
 public class ProductMapperTest {
 
     @Autowired

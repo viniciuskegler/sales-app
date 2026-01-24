@@ -1,4 +1,4 @@
-package com.viniciuskegler.salesapp.utils;
+package com.viniciuskegler.salesapp.shared;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

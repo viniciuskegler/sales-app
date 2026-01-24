@@ -1,6 +1,6 @@
-package com.viniciuskegler.salesapp.repository.specification;
+package com.viniciuskegler.salesapp.product.specification;
 
-import com.viniciuskegler.salesapp.model.Product;
+import com.viniciuskegler.salesapp.product.Product;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 

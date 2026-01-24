@@ -1,4 +1,4 @@
-package com.viniciuskegler.salesapp.dto;
+package com.viniciuskegler.salesapp.product.dto;
 
 import jakarta.validation.constraints.NotNull;
 

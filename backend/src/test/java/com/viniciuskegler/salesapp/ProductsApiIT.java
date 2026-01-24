@@ -1,11 +1,9 @@
 package com.viniciuskegler.salesapp;
 
-import com.viniciuskegler.salesapp.controller.ProductsController;
-import com.viniciuskegler.salesapp.dto.ProductCategoryDTO;
-import com.viniciuskegler.salesapp.dto.ProductDTO;
-import com.viniciuskegler.salesapp.dto.ProductDetailsDTO;
-import com.viniciuskegler.salesapp.utils.RestResponsePage;
-import org.junit.jupiter.api.Assertions;
+import com.viniciuskegler.salesapp.product.dto.ProductCategoryDTO;
+import com.viniciuskegler.salesapp.product.dto.ProductDTO;
+import com.viniciuskegler.salesapp.product.dto.ProductDetailsDTO;
+import com.viniciuskegler.salesapp.shared.RestResponsePage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.ProblemDetail;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.client.MockMvcHttpConnector;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.junit.jupiter.Container;
