@@ -12,6 +12,14 @@ public record ReviewDTO(
         @Positive
         Long id,
 
+        @Positive
+        Long reviewerId,
+
+        @NotNull
+        @NotBlank
+        @Length(max = 100)
+        String reviewerName,
+
         @NotNull
         @NotBlank
         @Length(max = 255)
@@ -22,10 +30,5 @@ public record ReviewDTO(
         Integer rating,
 
         @NotNull
-        LocalDateTime reviewDate,
-
-        @NotNull
-        @NotBlank
-        @Length(max = 80)
-        String reviewerName) {
+        LocalDateTime reviewDate) {
 }

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.Length;
 
 import java.math.BigDecimal;
-import java.util.Set;
+import java.util.List;
 
 public record ProductDetailsDTO(
         Long id,
@@ -45,7 +45,7 @@ public record ProductDetailsDTO(
         @Length(max = 15)
         String sku,
 
-        Set<ReviewDTO> reviews,
+        List<ReviewDTO> reviews,
 
         @NotNull
         @NotBlank

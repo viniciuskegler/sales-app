@@ -1,39 +1,48 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-users-table
+      id: 003-create-customers-table
       author: migration
       changes:
         - createTable:
-            tableName: users
+            tableName: customers
             columns:
               - column:
                   name: id
                   type: BIGINT
                   autoIncrement: true
+                  generationType: always
                   constraints:
                     primaryKey: true
                     nullable: false
+
               - column:
-                  name: email
+                  name: first_name
                   type: VARCHAR(50)
                   constraints:
                     nullable: false
-                    unique: true
+
               - column:
-                  name: password
-                  type: VARCHAR(255)
+                  name: last_name
+                  type: VARCHAR(50)
                   constraints:
                     nullable: false
+
               - column:
-                  name: role
-                  type: VARCHAR(25)
+                  name: phone_number
+                  type: VARCHAR(20)
                   constraints:
                     nullable: false
+
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_customers_user_id
+                    references: users(id)
+
               - column:
                   name: created_at
                   type: TIMESTAMP
                   constraints:
                     nullable: false
-
-        - sql:
-            sql: ALTER TABLE users ADD CONSTRAINT chk_user_role CHECK (role IN ('CUSTOMER', 'ADMIN', 'GUEST'))

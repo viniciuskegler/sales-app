@@ -1,13 +1,11 @@
 package com.viniciuskegler.salesapp.product;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -15,7 +13,7 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product implements Serializable {
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,7 +48,6 @@ public class Product implements Serializable {
     private String thumbnail;
 
     @Valid
-    @JsonManagedReference
     @OneToMany(mappedBy= "product", cascade = CascadeType.ALL)
-    private Set<Review> reviews;
+    private List<Review> reviews;
 }

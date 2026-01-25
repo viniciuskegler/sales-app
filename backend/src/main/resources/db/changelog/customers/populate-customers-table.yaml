@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-load-customers
+      author: migration
+      changes:
+        - loadData:
+            file: db/changelog/customers/csvs/customers.csv
+            tableName: customers
+            separator: ","
+            encoding: UTF-8

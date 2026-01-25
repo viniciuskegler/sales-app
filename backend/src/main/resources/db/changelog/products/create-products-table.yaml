@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-products-table
+      id: 005-create-products-table
       author: migration
       changes:
         - createTable:
@@ -71,7 +71,7 @@ databaseChangeLog:
                     nullable: false
 
   - changeSet:
-      id: 002-create-reviews-table
+      id: 006-create-reviews-table
       author: migration
       changes:
         - createTable:
@@ -93,6 +93,12 @@ databaseChangeLog:
                     nullable: false
 
               - column:
+                  name: customer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
                   name: rating
                   type: INT
                   constraints:
@@ -108,18 +114,6 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
-              - column:
-                  name: reviewer_name
-                  type: VARCHAR(80)
-                  constraints:
-                    nullable: false
-
-              - column:
-                  name: reviewer_email
-                  type: VARCHAR(80)
-                  constraints:
-                    nullable: false
-
         - addForeignKeyConstraint:
             baseTableName: reviews
             baseColumnNames: product_id
@@ -128,8 +122,16 @@ databaseChangeLog:
             constraintName: fk_reviews_products
             onDelete: CASCADE
 
+        - addForeignKeyConstraint:
+            baseTableName: reviews
+            baseColumnNames: customer_id
+            referencedTableName: customers
+            referencedColumnNames: id
+            constraintName: fk_reviews_customers
+            onDelete: CASCADE
+
   - changeSet:
-      id: 003-create-tag-table
+      id: 007-create-tag-table
       author: migration
       changes:
         - createTable:
@@ -152,7 +154,7 @@ databaseChangeLog:
                     unique: true
 
   - changeSet:
-      id: 004-create-product-tag-table
+      id: 008-create-product-tag-table
       author: migrations
       changes:
         - createTable:
@@ -192,7 +194,7 @@ databaseChangeLog:
             onDelete: CASCADE
 
   - changeSet:
-      id: 005-create-products-images-table
+      id: 009-create-products-images-table
       author: migration
       changes:
         - createTable:

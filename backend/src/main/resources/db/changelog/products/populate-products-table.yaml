@@ -1,6 +1,6 @@
 databaseChangeLog:
 - changeSet:
-    id: 006-load-products
+    id: 010-load-products
     author: migration
     changes:
       - loadData:
@@ -10,7 +10,7 @@ databaseChangeLog:
           encoding: UTF-8
 
 - changeSet:
-    id: 007-load-tags
+    id: 011-load-tags
     author: migration
     changes:
       - loadData:
@@ -20,7 +20,7 @@ databaseChangeLog:
           encoding: UTF-8
 
 - changeSet:
-    id: 008-load-product-tags
+    id: 012-load-product-tags
     author: migration
     changes:
       - loadData:
@@ -30,7 +30,7 @@ databaseChangeLog:
           encoding: UTF-8
 
 - changeSet:
-    id: 009-load-product-images
+    id: 013-load-product-images
     author: migration
     changes:
       - loadData:
@@ -40,7 +40,7 @@ databaseChangeLog:
           encoding: UTF-8
 
 - changeSet:
-    id: 010-load-reviews
+    id: 014-load-reviews
     author: migration
     changes:
       - loadData:

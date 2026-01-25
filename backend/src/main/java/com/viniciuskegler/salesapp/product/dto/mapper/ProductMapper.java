@@ -7,8 +7,7 @@ import com.viniciuskegler.salesapp.product.Product;
 import com.viniciuskegler.salesapp.product.Review;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Component
 public class ProductMapper {
@@ -23,9 +22,9 @@ public class ProductMapper {
     }
 
     public ProductDetailsDTO toProductDetailsDTO(Product product) {
-        Set<ReviewDTO> reviews = product.getReviews().stream()
+        List<ReviewDTO> reviews = product.getReviews().stream()
                 .map(this::toReviewDTO)
-                .collect(Collectors.toSet());
+                .toList();
 
         return new ProductDetailsDTO(
                 product.getId(),
@@ -45,10 +44,11 @@ public class ProductMapper {
     public ReviewDTO toReviewDTO(Review review) {
         return new ReviewDTO(
                 review.getId(),
+                review.getCustomer().getId(),
+                review.getCustomer().getFullName(),
                 review.getComment(),
                 review.getRating(),
-                review.getReviewDate(),
-                review.getReviewerName()
+                review.getReviewDate()
         );
     }
 }

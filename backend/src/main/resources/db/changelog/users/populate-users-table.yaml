@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-load-users
+      author: migration
+      changes:
+        - loadData:
+            file: db/changelog/users/csvs/users.csv
+            tableName: users
+            separator: ","
+            encoding: UTF-8
+            columns:
+              - column:
+                  name: email
+                  type: STRING
+              - column:
+                  name: password
+                  type: STRING
