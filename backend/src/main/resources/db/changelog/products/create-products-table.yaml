@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 001-create-product-table
+      id: 001-create-products-table
       author: migration
       changes:
         - createTable:
-            tableName: product
+            tableName: products
             columns:
               - column:
                   name: id
@@ -71,11 +71,11 @@ databaseChangeLog:
                     nullable: false
 
   - changeSet:
-      id: 002-create-review-table
+      id: 002-create-reviews-table
       author: migration
       changes:
         - createTable:
-            tableName: review
+            tableName: reviews
             columns:
               - column:
                   name: id
@@ -121,11 +121,11 @@ databaseChangeLog:
                     nullable: false
 
         - addForeignKeyConstraint:
-            baseTableName: review
+            baseTableName: reviews
             baseColumnNames: product_id
-            referencedTableName: product
+            referencedTableName: products
             referencedColumnNames: id
-            constraintName: fk_review_product
+            constraintName: fk_reviews_products
             onDelete: CASCADE
 
   - changeSet:
@@ -133,7 +133,7 @@ databaseChangeLog:
       author: migration
       changes:
         - createTable:
-            tableName: tag
+            tableName: tags
             columns:
               - column:
                   name: id
@@ -153,10 +153,10 @@ databaseChangeLog:
 
   - changeSet:
       id: 004-create-product-tag-table
-      author: migration
+      author: migrations
       changes:
         - createTable:
-            tableName: product_tag
+            tableName: products_tags
             columns:
               - column:
                   name: product_id
@@ -171,32 +171,32 @@ databaseChangeLog:
                     nullable: false
 
         - addPrimaryKey:
-            tableName: product_tag
+            tableName: products_tags
             columnNames: product_id, tag_id
-            constraintName: pk_product_tag
+            constraintName: pk_products_tags
 
         - addForeignKeyConstraint:
-            baseTableName: product_tag
+            baseTableName: products_tags
             baseColumnNames: product_id
-            referencedTableName: product
+            referencedTableName: products
             referencedColumnNames: id
-            constraintName: fk_product_tag_product
+            constraintName: fk_products_tags_products
             onDelete: CASCADE
 
         - addForeignKeyConstraint:
-            baseTableName: product_tag
+            baseTableName: products_tags
             baseColumnNames: tag_id
-            referencedTableName: tag
+            referencedTableName: tags
             referencedColumnNames: id
-            constraintName: fk_product_tag_tag
+            constraintName: fk_products_tags_tags
             onDelete: CASCADE
 
   - changeSet:
-      id: 005-create-product-image-table
+      id: 005-create-products-images-table
       author: migration
       changes:
         - createTable:
-            tableName: product_image
+            tableName: products_images
             columns:
               - column:
                   name: id
@@ -224,9 +224,9 @@ databaseChangeLog:
                   type: INT
 
         - addForeignKeyConstraint:
-            baseTableName: product_image
+            baseTableName: products_images
             baseColumnNames: product_id
-            referencedTableName: product
+            referencedTableName: products
             referencedColumnNames: id
-            constraintName: fk_product_image_product
+            constraintName: fk_products_images_products
             onDelete: CASCADE

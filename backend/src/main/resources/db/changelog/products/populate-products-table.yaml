@@ -5,7 +5,7 @@ databaseChangeLog:
     changes:
       - loadData:
           file: db/changelog/products/csvs/product.csv
-          tableName: product
+          tableName: products
           separator: ","
           encoding: UTF-8
 
@@ -15,7 +15,7 @@ databaseChangeLog:
     changes:
       - loadData:
           file: db/changelog/products/csvs/tag.csv
-          tableName: tag
+          tableName: tags
           separator: ","
           encoding: UTF-8
 
@@ -25,7 +25,7 @@ databaseChangeLog:
     changes:
       - loadData:
           file: db/changelog/products/csvs/product_tag.csv
-          tableName: product_tag
+          tableName: products_tags
           separator: ","
           encoding: UTF-8
 
@@ -35,7 +35,7 @@ databaseChangeLog:
     changes:
       - loadData:
           file: db/changelog/products/csvs/product_image.csv
-          tableName: product_image
+          tableName: products_images
           separator: ","
           encoding: UTF-8
 
@@ -45,7 +45,7 @@ databaseChangeLog:
     changes:
       - loadData:
           file: db/changelog/products/csvs/review.csv
-          tableName: review
+          tableName: reviews
           separator: ","
           encoding: UTF-8
           columns:

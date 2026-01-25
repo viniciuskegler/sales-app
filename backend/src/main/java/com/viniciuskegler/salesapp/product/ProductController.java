@@ -14,12 +14,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-public class ProductsController {
+public class ProductController {
 
-    private final ProductsService productsService;
+    private final ProductService productService;
 
-    public ProductsController(ProductsService productsService) {
-        this.productsService = productsService;
+    public ProductController(ProductService productService) {
+        this.productService = productService;
     }
 
     @GetMapping
@@ -31,16 +31,16 @@ public class ProductsController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "ASC") SortOrder sortOrder
     ) {
-        return productsService.getProducts(categories, title, page, pageSize, sortBy, sortOrder);
+        return productService.getProducts(categories, title, page, pageSize, sortBy, sortOrder);
     }
 
     @GetMapping("/{id}")
     public ProductDetailsDTO findById(@PathVariable Long id) {
-        return productsService.findById(id);
+        return productService.findById(id);
     }
 
     @GetMapping("/categories")
     public List<ProductCategoryDTO> getAllProductsCategories() {
-        return productsService.getAllProductsCategories();
+        return productService.getAllProductsCategories();
     }
 }

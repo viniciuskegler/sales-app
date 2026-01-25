@@ -22,13 +22,13 @@ import java.util.List;
 
 @Validated
 @Service
-public class ProductsService {
+public class ProductService {
 
-    private final ProductsRepository productsRepository;
+    private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    public ProductsService(ProductsRepository productsRepository, ProductMapper productMapper) {
-        this.productsRepository = productsRepository;
+    public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
+        this.productRepository = productRepository;
         this.productMapper = productMapper;
     }
 
@@ -44,18 +44,18 @@ public class ProductsService {
         } else {
             sort = sort.descending();
         }
-        return productsRepository.findAll(Specification.where(ProductSpecification.hasCategory(categories))
+        return productRepository.findAll(Specification.where(ProductSpecification.hasCategory(categories))
                         .and(ProductSpecification.hasTitleLike(title)), PageRequest.of(page, pageSize, sort))
                 .map(productMapper::toProductDTO);
     }
 
     public ProductDetailsDTO findById(@NotNull @Positive Long id) {
-        return productsRepository.findById(id).map(productMapper::toProductDetailsDTO)
+        return productRepository.findById(id).map(productMapper::toProductDetailsDTO)
                 .orElseThrow(() -> new RecordNotFoundException(id));
     }
 
     public List<ProductCategoryDTO> getAllProductsCategories() {
-        return productsRepository.getAllProductsCategories().stream().map(cat ->
+        return productRepository.getAllProductsCategories().stream().map(cat ->
                 new ProductCategoryDTO(WordUtils.capitalize(cat.replace("-", " ")), cat)
         ).toList();
     }
