@@ -4,12 +4,16 @@ import {
     HttpRequest,
     HttpResponse,
 } from "@angular/common/http";
+import { environment } from "environments/environment";
 import { Observable, tap } from "rxjs";
 
 export function loggingInterceptor(
     req: HttpRequest<unknown>,
     next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> {
+    if(environment.production) {
+        return next(req);
+    }
     return next(req).pipe(
         tap({
             next: (event: HttpEvent<unknown>) => {
