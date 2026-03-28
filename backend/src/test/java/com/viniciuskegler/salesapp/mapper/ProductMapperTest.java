@@ -1,5 +1,6 @@
 package com.viniciuskegler.salesapp.mapper;
 
+import com.viniciuskegler.salesapp.customer.Customer;
 import com.viniciuskegler.salesapp.product.dto.ProductDTO;
 import com.viniciuskegler.salesapp.product.dto.ProductDetailsDTO;
 import com.viniciuskegler.salesapp.product.dto.ReviewDTO;
@@ -11,8 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,36 +44,45 @@ class ProductMapperTest {
 
     @Test
     void toReviewDTO_mapsFields() {
+        Customer customer = new Customer();
+        customer.setId(10L);
+        customer.setFirstName("Alice");
+        customer.setLastName("Smith");
+
         Review review = new Review();
         review.setId(7L);
         review.setComment("Great!");
         review.setRating(4);
+        review.setCustomer(customer);
         LocalDateTime date = LocalDateTime.now();
         review.setReviewDate(date);
-        review.setReviewerName("Alice");
 
         ReviewDTO dto = mapper.toReviewDTO(review);
 
         assertNotNull(dto);
         assertEquals(7L, dto.id());
+        assertEquals(10L, dto.reviewerId());
+        assertEquals("Alice Smith", dto.reviewerName());
         assertEquals("Great!", dto.comment());
         assertEquals(4, dto.rating());
         assertEquals(date, dto.reviewDate());
-        assertEquals("Alice", dto.reviewerName());
     }
 
     @Test
     void toProductDetailsDTO_mapsAllFields_includingReviews() {
         LocalDateTime now = LocalDateTime.now();
+
+        Customer customer = new Customer();
+        customer.setId(20L);
+        customer.setFirstName("Bob");
+        customer.setLastName("Jones");
+
         Review review = new Review();
         review.setId(1L);
         review.setComment("Nice");
         review.setRating(5);
         review.setReviewDate(now);
-        review.setReviewerName("Bob");
-
-        Set<Review> reviews = new HashSet<>();
-        reviews.add(review);
+        review.setCustomer(customer);
 
         Product product = new Product();
         product.setId(100L);
@@ -85,8 +94,8 @@ class ProductMapperTest {
         product.setStock(20);
         product.setBrand("BrandX");
         product.setSku("SKU-123");
-        product.setReviews(reviews);
         product.setThumbnail("detail.png");
+        product.setReviews(List.of(review));
 
         ProductDetailsDTO dto = mapper.toProductDetailsDTO(product);
 
@@ -105,11 +114,12 @@ class ProductMapperTest {
         assertNotNull(dto.reviews());
         assertEquals(1, dto.reviews().size());
 
-        ReviewDTO mapped = dto.reviews().iterator().next();
+        ReviewDTO mapped = dto.reviews().getFirst();
         assertEquals(1L, mapped.id());
+        assertEquals(20L, mapped.reviewerId());
+        assertEquals("Bob Jones", mapped.reviewerName());
         assertEquals("Nice", mapped.comment());
         assertEquals(5, mapped.rating());
         assertEquals(now, mapped.reviewDate());
-        assertEquals("Bob", mapped.reviewerName());
     }
 }
