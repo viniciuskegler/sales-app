@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { ProductDTO, ProductResponse } from "./model/products.model";
+import { ProductDetailsDTO, ProductDTO, ProductResponse } from "./model/products.model";
 import { BehaviorSubject, Observable } from "rxjs";
 
 @Injectable({ providedIn: "root" })
@@ -31,11 +31,11 @@ export class ProductsService {
             .add(() => this.finishLoading());
     }
 
-    fetchProductById(productId: number): Observable<ProductDTO> {
-        return this.httpClient.get<ProductDTO>(`${this.apiUrl}/${productId}`);
+    fetchProductById(productId: number): Observable<ProductDetailsDTO> {
+        return this.httpClient.get<ProductDetailsDTO>(`${this.apiUrl}/${productId}`);
     }
 
-    getProductById(productId: number): Observable<ProductDTO> {
+    getProductById(productId: number): Observable<ProductDetailsDTO> {
         return this.fetchProductById(productId);
     }
 

@@ -7,18 +7,10 @@
 html {
     position: relative;
     min-height: 100vh;
-    padding-bottom: 100px;
 }
 
 body {
     margin: 0;
-}
-
-footer {
-    margin-top: 3rem;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
 }
 
 app-home-component {

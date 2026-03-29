@@ -4,6 +4,7 @@ import com.viniciuskegler.salesapp.product.dto.ProductDTO;
 import com.viniciuskegler.salesapp.product.dto.ProductDetailsDTO;
 import com.viniciuskegler.salesapp.product.dto.ReviewDTO;
 import com.viniciuskegler.salesapp.product.Product;
+import com.viniciuskegler.salesapp.product.ProductImage;
 import com.viniciuskegler.salesapp.product.Review;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,10 @@ public class ProductMapper {
                 .map(this::toReviewDTO)
                 .toList();
 
+        List<String> images = product.getImages().stream()
+                .map(ProductImage::getUrl)
+                .toList();
+
         return new ProductDetailsDTO(
                 product.getId(),
                 product.getTitle(),
@@ -37,7 +42,8 @@ public class ProductMapper {
                 product.getBrand(),
                 product.getSku(),
                 reviews,
-                product.getThumbnail()
+                product.getThumbnail(),
+                images
         );
     }
 

@@ -47,7 +47,11 @@ public class Product {
     @Column(nullable = false)
     private String thumbnail;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OrderBy("position ASC")
+    private List<ProductImage> images;
+
     @Valid
-    @OneToMany(mappedBy= "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Review> reviews;
 }

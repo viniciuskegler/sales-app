@@ -2,6 +2,9 @@
 
 A marketplace application with a mockup payment gateway.
 
+## References
+- Zard UI component docs: https://zardui.com/llms — fetch when working on shared UI components
+
 ## Stack
 
 - **Backend**: Spring Boot 4 / Java 21, PostgreSQL 16, Liquibase, JJWT
@@ -57,6 +60,9 @@ Public endpoints: `/api/auth/**`, `/api/products/**`. Everything else requires a
 Path aliases: `@core/*`, `@features/*`, `@shared/*`, `@layout/*`
 
 ## Conventions
+
+### General
+- Always use `{}` braces for `if`/`else if`/`else` blocks — no braceless one-liners, in any language
 
 ### Backend
 - Constructor injection (no `@Autowired` on fields)

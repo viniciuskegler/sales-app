@@ -49,5 +49,7 @@ public record ProductDetailsDTO(
 
         @NotNull
         @NotBlank
-        String thumbnail) {
+        String thumbnail,
+
+        List<String> images) {
 }

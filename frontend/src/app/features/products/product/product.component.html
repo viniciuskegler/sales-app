@@ -1,9 +1,99 @@
-<h3>
-    OMAGA PRODUCT WORKS!!
-</h3>
-
-
-
-<!-- 
-    TODO GET RELATED PRODUCTS AND SHOW AS A CARROUSEL HERE
--->
+@if (product(); as p) {
+    <div class="mx-auto max-w-6xl px-4 py-8">
+        <div class="grid grid-cols-1 gap-10 md:grid-cols-2">
+            <z-carousel [zOptions]="{ loop: true }" zControls="dot">
+                <z-carousel-content>
+                    @for (img of images(); track $index) {
+                        <z-carousel-item>
+                            <div class="overflow-hidden rounded-xl bg-muted aspect-square">
+                                <img
+                                    [src]="img"
+                                    [alt]="p.title"
+                                    class="h-full w-full object-cover"
+                                />
+                            </div>
+                        </z-carousel-item>
+                    }
+                </z-carousel-content>
+            </z-carousel>
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-2">
+                        <z-badge zType="secondary" zShape="pill">{{ p.brand }}</z-badge>
+                        @if (p.stock <= 5 && p.stock > 0) {
+                            <z-badge zType="destructive" zShape="pill">Only {{ p.stock }} left</z-badge>
+                        }
+                        @if (p.stock === 0) {
+                            <z-badge zType="destructive" zShape="pill">Out of stock</z-badge>
+                        }
+                    </div>
+                    <h1 class="text-2xl font-bold tracking-tight">{{ p.title }}</h1>
+                    <p class="text-sm text-muted-foreground">SKU: {{ p.sku }}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="flex">
+                        @for (filled of stars(); track $index) {
+                            <z-icon
+                                zType="star"
+                                zSize="sm"
+                                [class]="filled ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'"
+                            />
+                        }
+                    </div>
+                    <span class="text-sm text-muted-foreground">
+                        {{ p.rating | number: '1.1-1' }} ({{ p.reviews.length }} reviews)
+                    </span>
+                </div>
+                <div class="flex items-baseline gap-3">
+                    @if (discountedPrice(); as discounted) {
+                        <span class="text-3xl font-bold">{{ discounted | currency }}</span>
+                        <span class="text-lg text-muted-foreground line-through">{{ p.price | currency }}</span>
+                        <z-badge zType="default" zShape="pill">-{{ p.discountPercentage }}%</z-badge>
+                    } @else {
+                        <span class="text-3xl font-bold">{{ p.price | currency }}</span>
+                    }
+                </div>
+                <p class="text-sm leading-relaxed text-muted-foreground">{{ p.description }}</p>
+                <div class="mt-2">
+                    <button
+                        z-button
+                        zSize="lg"
+                        zFull
+                        [zDisabled]="p.stock === 0 || addedToCart()"
+                        (click)="addToCart()"
+                    >
+                        <z-icon [zType]="addedToCart() ? 'check' : 'shopping-cart'" />
+                        {{ addedToCart() ? 'Added to cart' : 'Add to cart' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        @if (p.reviews.length > 0) {
+            <div class="mt-12">
+                <h2 class="mb-4 text-xl font-semibold">Reviews</h2>
+                <div class="flex flex-col gap-4">
+                    @for (review of p.reviews; track review.id) {
+                        <div class="rounded-xl border p-4 flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium">{{ review.reviewerName }}</span>
+                                <span class="text-xs text-muted-foreground">
+                                    {{ review.reviewDate | date: 'mediumDate' }}
+                                </span>
+                            </div>
+                            <div class="flex">
+                                @for (filled of [1,2,3,4,5]; track $index) {
+                                    <z-icon
+                                        zType="star"
+                                        zSize="sm"
+                                        [class]="$index < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'"
+                                    />
+                                }
+                            </div>
+                            <p class="text-sm text-muted-foreground">{{ review.comment }}</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

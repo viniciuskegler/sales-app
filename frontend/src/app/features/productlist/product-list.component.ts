@@ -9,6 +9,7 @@ import { ZardSelectItemComponent } from "@shared/components/select/select-item.c
 import { ZardLoaderComponent } from "@shared/components/loader/loader.component";
 import { ZardPaginationComponent } from "@shared/components/pagination/pagination.component";
 import { PagedResponse } from "@core/model/pagination.model";
+import { ZardIconComponent } from "@shared/components/icon/icon.component";
 
 @Component({
     standalone: true,
@@ -26,6 +27,7 @@ import { PagedResponse } from "@core/model/pagination.model";
         ZardLoaderComponent,
         ZardPaginationComponent,
         NgOptimizedImage,
+        ZardIconComponent
     ],
 })
 export class ProductListComponent {

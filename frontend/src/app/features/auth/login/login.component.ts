@@ -19,7 +19,7 @@ export class LoginComponent {
     });
 
     submit(): void {
-        if (this.form.invalid) return;
+        if (this.form.invalid) { return; }
         const { email, password } = this.form.getRawValue();
         this.authService.login({ email: email!, password: password! }).subscribe({
             next: () => this.router.navigate(['/']),

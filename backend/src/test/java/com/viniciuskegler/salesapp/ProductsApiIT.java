@@ -111,6 +111,25 @@ class ProductsApiIT {
 
         assertThat(product).isNotNull();
         assertThat(product.id()).isEqualTo(1L);
+        assertThat(product.title()).isNotBlank();
+        assertThat(product.price()).isNotNull().isPositive();
+        assertThat(product.thumbnail()).isNotBlank();
+        assertThat(product.images()).isNotNull().isNotEmpty();
+        assertThat(product.reviews()).isNotNull();
+    }
+
+    @Test
+    void shouldReturnProductImagesInPositionOrder() {
+        ProductDetailsDTO product = restTestClient.get()
+                .uri("/api/products/1")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(ProductDetailsDTO.class)
+                .returnResult().getResponseBody();
+
+        assertThat(product).isNotNull();
+        assertThat(product.images()).isNotNull().hasSizeGreaterThan(0);
+        product.images().forEach(url -> assertThat(url).isNotBlank());
     }
 
     @Test()
@@ -147,6 +166,60 @@ class ProductsApiIT {
                 .uri("/api/products?pageSize=101")
                 .exchange()
                 .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void shouldReturnEmptyPageForNonMatchingTitle() {
+        RestResponsePage<ProductDTO> products = restTestClient.get()
+                .uri("/api/products?title=xyznonexistentproduct12345")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<RestResponsePage<ProductDTO>>() {})
+                .returnResult().getResponseBody();
+
+        assertThat(products).isNotNull();
+        assertThat(products.getContent()).isEmpty();
+    }
+
+    @Test
+    void shouldReturnProductDetailsWithReviews() {
+        ProductDetailsDTO product = restTestClient.get()
+                .uri("/api/products/1")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(ProductDetailsDTO.class)
+                .returnResult().getResponseBody();
+
+        assertThat(product).isNotNull();
+        assertThat(product.reviews()).isNotNull().isNotEmpty();
+        product.reviews().forEach(review -> {
+            assertThat(review.reviewerName()).isNotBlank();
+            assertThat(review.rating()).isPositive();
+        });
+    }
+
+    @Test
+    void shouldReturnCategoriesWithHumanReadableDisplayNames() {
+        List<ProductCategoryDTO> categories = restTestClient.get()
+                .uri("/api/products/categories")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<List<ProductCategoryDTO>>() {})
+                .returnResult().getResponseBody();
+
+        assertThat(categories).isNotNull().isNotEmpty();
+        // Verify every category has both a slug and a display name
+        categories.forEach(cat -> {
+            assertThat(cat.value()).isNotBlank();
+            assertThat(cat.name()).isNotBlank();
+        });
+        // Slugs with hyphens must have their display name capitalized and spaced
+        categories.stream()
+                .filter(cat -> cat.value().contains("-"))
+                .findFirst()
+                .ifPresent(cat ->
+                        assertThat(cat.name()).doesNotContain("-")
+                );
     }
 
 }

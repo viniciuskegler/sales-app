@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:zardui.com)",
+      "Bash(npx zard-cli:*)"
+    ]
+  }
+}

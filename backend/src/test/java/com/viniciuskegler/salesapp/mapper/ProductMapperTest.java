@@ -6,6 +6,7 @@ import com.viniciuskegler.salesapp.product.dto.ProductDetailsDTO;
 import com.viniciuskegler.salesapp.product.dto.ReviewDTO;
 import com.viniciuskegler.salesapp.product.dto.mapper.ProductMapper;
 import com.viniciuskegler.salesapp.product.Product;
+import com.viniciuskegler.salesapp.product.ProductImage;
 import com.viniciuskegler.salesapp.product.Review;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -97,6 +98,14 @@ class ProductMapperTest {
         product.setThumbnail("detail.png");
         product.setReviews(List.of(review));
 
+        ProductImage img1 = new ProductImage();
+        img1.setUrl("img-a.png");
+        img1.setPosition(1);
+        ProductImage img2 = new ProductImage();
+        img2.setUrl("img-b.png");
+        img2.setPosition(2);
+        product.setImages(List.of(img1, img2));
+
         ProductDetailsDTO dto = mapper.toProductDetailsDTO(product);
 
         assertNotNull(dto);
@@ -121,5 +130,32 @@ class ProductMapperTest {
         assertEquals("Nice", mapped.comment());
         assertEquals(5, mapped.rating());
         assertEquals(now, mapped.reviewDate());
+
+        assertNotNull(dto.images());
+        assertEquals(2, dto.images().size());
+        assertEquals("img-a.png", dto.images().get(0));
+        assertEquals("img-b.png", dto.images().get(1));
+    }
+
+    @Test
+    void toProductDetailsDTO_withNoImages_returnsEmptyList() {
+        Product product = new Product();
+        product.setId(1L);
+        product.setTitle("No Images");
+        product.setDescription("desc");
+        product.setPrice(BigDecimal.ONE);
+        product.setDiscountPercentage(BigDecimal.ZERO);
+        product.setRating(BigDecimal.ZERO);
+        product.setStock(0);
+        product.setBrand("B");
+        product.setSku("S");
+        product.setThumbnail("t.png");
+        product.setReviews(List.of());
+        product.setImages(List.of());
+
+        ProductDetailsDTO dto = mapper.toProductDetailsDTO(product);
+
+        assertNotNull(dto.images());
+        assertTrue(dto.images().isEmpty());
     }
 }

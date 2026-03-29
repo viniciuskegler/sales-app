@@ -22,7 +22,7 @@ export class RegisterComponent {
     });
 
     submit(): void {
-        if (this.form.invalid) return;
+        if (this.form.invalid) { return; }
         const value = this.form.getRawValue();
         this.authService
             .register({
