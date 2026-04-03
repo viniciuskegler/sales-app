@@ -1,5 +1,5 @@
 @if (product(); as p) {
-    <div class="mx-auto max-w-6xl px-4 py-8">
+    <div class="mx-auto w-[90%] max-w-screen-2xl px-4 py-8">
         <div class="grid grid-cols-1 gap-10 md:grid-cols-2">
             <z-carousel [zOptions]="{ loop: true }" zControls="dot">
                 <z-carousel-content>
@@ -68,6 +68,16 @@
                 </div>
             </div>
         </div>
+        @if (relatedProductsPaged()) {
+            <div class="mt-12">
+                <h2 class="mb-4 text-xl font-semibold">Related Products</h2>
+                <app-product-list
+                    [products]="relatedProductsPaged()"
+                    [isLoading]="relatedProducts.isLoading()"
+                    [carrouselMode]="true"
+                />
+            </div>
+        }
         @if (p.reviews.length > 0) {
             <div class="mt-12">
                 <h2 class="mb-4 text-xl font-semibold">Reviews</h2>

@@ -54,6 +54,16 @@ public class ProductService {
                 .orElseThrow(() -> new RecordNotFoundException(id));
     }
 
+    public List<ProductDTO> getRelatedProducts(@NotNull @Positive Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new RecordNotFoundException(id);
+        }
+        return productRepository.findRelatedProducts(id, PageRequest.of(0, 10))
+                .stream()
+                .map(productMapper::toProductDTO)
+                .toList();
+    }
+
     public List<ProductCategoryDTO> getAllProductsCategories() {
         return productRepository.getAllProductsCategories().stream().map(cat ->
                 new ProductCategoryDTO(WordUtils.capitalize(cat.replace("-", " ")), cat)

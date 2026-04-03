@@ -54,4 +54,12 @@ public class Product {
     @Valid
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Review> reviews;
+
+    @ManyToMany
+    @JoinTable(
+            name = "products_tags",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags;
 }

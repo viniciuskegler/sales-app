@@ -8,15 +8,18 @@ import {
 } from "@angular/core";
 import { CurrencyPipe, DatePipe, DecimalPipe } from "@angular/common";
 import { ActivatedRoute } from "@angular/router";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { map } from "rxjs";
-import { ProductDetailsDTO } from "../model/products.model";
+import { toSignal, rxResource } from "@angular/core/rxjs-interop";
+import { map, of } from "rxjs";
+import { ProductDetailsDTO, ProductDTO } from "../model/products.model";
+import { ProductsService } from "../products.service";
+import { PagedResponse } from "@core/model/pagination.model";
 import { ZardButtonComponent } from "@shared/components/button/button.component";
 import { ZardBadgeComponent } from "@shared/components/badge/badge.component";
 import { ZardIconComponent } from "@shared/components/icon/icon.component";
 import { ZardCarouselComponent } from "@shared/components/carousel/carousel.component";
 import { ZardCarouselContentComponent } from "@shared/components/carousel/carousel-content.component";
 import { ZardCarouselItemComponent } from "@shared/components/carousel/carousel-item.component";
+import { ProductListComponent } from "@features/productlist/product-list.component";
 
 @Component({
     selector: "app-product-component",
@@ -30,6 +33,7 @@ import { ZardCarouselItemComponent } from "@shared/components/carousel/carousel-
         ZardCarouselComponent,
         ZardCarouselContentComponent,
         ZardCarouselItemComponent,
+        ProductListComponent,
         CurrencyPipe,
         DatePipe,
         DecimalPipe,
@@ -37,12 +41,36 @@ import { ZardCarouselItemComponent } from "@shared/components/carousel/carousel-
 })
 export class ProductComponent {
     private readonly route = inject(ActivatedRoute);
+    private readonly productsService = inject(ProductsService);
 
     readonly product = toSignal(
         this.route.data.pipe(map((d) => d["data"] as ProductDetailsDTO)),
         { initialValue: null },
     );
     readonly addedToCart = signal(false);
+
+    readonly productId = computed(() => this.product()?.id);
+
+    readonly relatedProducts = rxResource({
+        params: this.productId,
+        stream: ({ params: id }) => {
+            if (!id) {
+                return of(null);
+            }
+            return this.productsService.getRelatedProducts(id);
+        },
+    });
+
+    readonly relatedProductsPaged = computed<PagedResponse<ProductDTO> | null>(() => {
+        const items = this.relatedProducts.value();
+        if (!items) {
+            return null;
+        }
+        return {
+            content: items,
+            page: { totalElements: items.length, totalPages: 1, size: items.length, number: 0 },
+        };
+    });
 
     constructor() {
         effect(() => {

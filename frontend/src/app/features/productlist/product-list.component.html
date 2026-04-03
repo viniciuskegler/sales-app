@@ -1,58 +1,113 @@
-<div class="flex h-full w-full flex-col items-center gap-y-[10px]">
-    <div class="flex w-[90%] flex-row justify-between gap-x-[10px]">
-        <div>
-            <div>{{ totalProducts() }} products</div>
-        </div>
-        <div class="">
-            <z-select
-                zPlaceholder="Select number of items per page"
-                [(zValue)]="pagination"
-                (zSelectionChange)="onPaginationChange($event)">
-                @for (option of paginationOptions; track $index) {
-                    <z-select-item [zValue]="option.toString()"
-                        >{{ option }} per page</z-select-item
-                    >
-                }
-            </z-select>
-        </div>
-    </div>
-    @if (!isLoading() && products() && products()?.content) {
-        <div
-            class="flex w-full flex-row flex-wrap justify-center gap-x-[5px] gap-y-[10px]">
-            @for (product of products()!.content; track product.id) {
-                <z-card class="flex w-[280px] flex-col justify-between">
-                    <div card-content>
-                        <a [routerLink]="['/product', product.id]">
-                            <img
-                                [ngSrc]="product.thumbnail"
-                                width="230"
-                                height="230"
-                                alt="Product Thumbnail"
+@if (carrouselMode()) {
+    @if (!isLoading() && products()?.content) {
+        <div [class]="'relative flex items-center' + (canScroll() ? '' : ' justify-center')">
+            @if (canScroll()) {
+                <button
+                    z-button
+                    zType="outline"
+                    zShape="circle"
+                    class="absolute left-0 z-10 shrink-0 shadow-md"
+                    (click)="scrollCarousel(-1)">
+                    <z-icon zType="chevron-left" />
+                </button>
+            }
+            <div #carouselTrack [class]="'carousel-track flex flex-row gap-x-4 overflow-x-auto pb-2 ' + (canScroll() ? 'px-12' : 'justify-center px-4')">
+                @for (product of products()!.content; track product.id) {
+                    <z-card class="flex w-[220px] shrink-0 flex-col justify-between">
+                        <div card-content>
+                            <a [routerLink]="['/product', product.id]">
+                                <img
+                                    [ngSrc]="product.thumbnail"
+                                    width="180"
+                                    height="180"
+                                    alt="Product Thumbnail"
                                 />
-                            <div class="text-2xl">
-                                {{ product.price | currency }}
-                            </div>
-                            <div class="font-bold">{{ product.title }}</div>
-                        </a>
-                    </div>
-                    <div card-footer class="w-full">
-                        <button z-button zFull>
-                            <z-icon [zType]="'shopping-cart'" />
-                            Add to Cart
-                        </button>
-                    </div>
-                </z-card>
+                                <div class="text-xl">{{ product.price | currency }}</div>
+                                <div class="font-bold text-sm">{{ product.title }}</div>
+                            </a>
+                        </div>
+                        <div card-footer class="w-full">
+                            <button z-button zFull>
+                                <z-icon [zType]="'shopping-cart'" />
+                                Add to Cart
+                            </button>
+                        </div>
+                    </z-card>
+                }
+            </div>
+            @if (canScroll()) {
+                <button
+                    z-button
+                    zType="outline"
+                    zShape="circle"
+                    class="absolute right-0 z-10 shrink-0 shadow-md"
+                    (click)="scrollCarousel(1)">
+                    <z-icon zType="chevron-right" />
+                </button>
             }
         </div>
-        <z-pagination
-            class="mt-auto mb-[20px]"
-            [zTotal]="totalPages()"
-            [(zPageIndex)]="currentPage" />
     } @else {
-        <ng-template #loading>
-            <div class="h-full w-full">
-                <z-loader />
-            </div>
-        </ng-template>
+        <div class="h-[260px] w-full">
+            <z-loader />
+        </div>
     }
-</div>
+} @else {
+    <div class="flex h-full w-full flex-col items-center gap-y-[10px]">
+        <div class="flex w-[90%] flex-row justify-between gap-x-[10px]">
+            <div>
+                <div>{{ totalProducts() }} products</div>
+            </div>
+            <div>
+                <z-select
+                    zPlaceholder="Select number of items per page"
+                    [(zValue)]="pagination"
+                    (zSelectionChange)="onPaginationChange($event)">
+                    @for (option of paginationOptions; track $index) {
+                        <z-select-item [zValue]="option.toString()"
+                            >{{ option }} per page</z-select-item
+                        >
+                    }
+                </z-select>
+            </div>
+        </div>
+        @if (!isLoading() && products() && products()?.content) {
+            <div
+                class="flex w-full flex-row flex-wrap justify-center gap-x-[5px] gap-y-[10px]">
+                @for (product of products()!.content; track product.id) {
+                    <z-card class="flex w-[280px] flex-col justify-between">
+                        <div card-content>
+                            <a [routerLink]="['/product', product.id]">
+                                <img
+                                    [ngSrc]="product.thumbnail"
+                                    width="230"
+                                    height="230"
+                                    alt="Product Thumbnail"
+                                    />
+                                <div class="text-2xl">
+                                    {{ product.price | currency }}
+                                </div>
+                                <div class="font-bold">{{ product.title }}</div>
+                            </a>
+                        </div>
+                        <div card-footer class="w-full">
+                            <button z-button zFull>
+                                <z-icon [zType]="'shopping-cart'" />
+                                Add to Cart
+                            </button>
+                        </div>
+                    </z-card>
+                }
+            </div>
+            <z-pagination
+                class="mt-auto mb-[20px]"
+                [zTotal]="totalPages()"
+                [(zPageIndex)]="currentPage" />
+        } @else {
+            <ng-template #loading>
+                <div class="h-full w-full">
+                    <z-loader />
+                </div>
+            </ng-template>
+        }
+    </div>
+}

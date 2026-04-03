@@ -199,6 +199,28 @@ class ProductsApiIT {
     }
 
     @Test
+    void shouldReturnRelatedProducts() {
+        List<ProductDTO> related = restTestClient.get()
+                .uri("/api/products/1/related")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<List<ProductDTO>>() {})
+                .returnResult().getResponseBody();
+
+        assertThat(related).isNotNull();
+        assertThat(related).hasSizeLessThanOrEqualTo(10);
+        related.forEach(p -> assertThat(p.id()).isNotEqualTo(1L));
+    }
+
+    @Test
+    void shouldReturnNotFoundForRelatedProductsWithInvalidId() {
+        restTestClient.get()
+                .uri("/api/products/999999/related")
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
     void shouldReturnCategoriesWithHumanReadableDisplayNames() {
         List<ProductCategoryDTO> categories = restTestClient.get()
                 .uri("/api/products/categories")
@@ -208,12 +230,10 @@ class ProductsApiIT {
                 .returnResult().getResponseBody();
 
         assertThat(categories).isNotNull().isNotEmpty();
-        // Verify every category has both a slug and a display name
         categories.forEach(cat -> {
             assertThat(cat.value()).isNotBlank();
             assertThat(cat.name()).isNotBlank();
         });
-        // Slugs with hyphens must have their display name capitalized and spaced
         categories.stream()
                 .filter(cat -> cat.value().contains("-"))
                 .findFirst()

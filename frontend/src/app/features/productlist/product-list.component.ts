@@ -1,4 +1,5 @@
-import { Component, computed, input, model } from "@angular/core";
+import { Component, computed, DestroyRef, ElementRef, inject, input, model, PLATFORM_ID, signal, ViewChild } from "@angular/core";
+import { isPlatformBrowser } from "@angular/common";
 import { ProductDTO } from "@features/products/model/products.model";
 import { CommonModule, CurrencyPipe, NgOptimizedImage } from "@angular/common";
 import { ZardCardComponent } from "@shared/components/card/card.component";
@@ -51,6 +52,38 @@ export class ProductListComponent {
     });
 
     readonly currentPage = model<number>(1);
+
+    private _carouselTrack?: ElementRef<HTMLElement>;
+
+    @ViewChild('carouselTrack') set carouselTrack(el: ElementRef<HTMLElement> | undefined) {
+        this._carouselTrack = el;
+        this.resizeObserver?.disconnect();
+        this.resizeObserver = undefined;
+        if (!el) {
+            this.canScroll.set(false);
+            return;
+        }
+        const native = el.nativeElement;
+        const update = () => this.canScroll.set(native.scrollWidth > native.clientWidth);
+        update();
+        if (this.isBrowser) {
+            this.resizeObserver = new ResizeObserver(update);
+            this.resizeObserver.observe(native);
+        }
+    }
+
+    readonly canScroll = signal(false);
+    private resizeObserver?: ResizeObserver;
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+    constructor() {
+        this.destroyRef.onDestroy(() => this.resizeObserver?.disconnect());
+    }
+
+    scrollCarousel(direction: -1 | 1): void {
+        this._carouselTrack?.nativeElement.scrollBy({ left: direction * 240, behavior: 'smooth' });
+    }
 
     onPaginationChange(value: string | string[]) {
         if (Array.isArray(value)) {

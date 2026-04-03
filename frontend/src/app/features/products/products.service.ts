@@ -39,6 +39,10 @@ export class ProductsService {
         return this.fetchProductById(productId);
     }
 
+    getRelatedProducts(productId: number): Observable<ProductDTO[]> {
+        return this.httpClient.get<ProductDTO[]>(`${this.apiUrl}/${productId}/related`);
+    }
+
     getProductsByName(name: string): Observable<ProductResponse> {
         return this.httpClient.get<ProductResponse>(
             `${this.apiUrl}?title=${name}&pageSize=5`,
