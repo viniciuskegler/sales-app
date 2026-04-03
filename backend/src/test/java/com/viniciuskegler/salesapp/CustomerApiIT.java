@@ -46,13 +46,13 @@ class CustomerApiIT {
     }
 
     @Test
-    void shouldReturnCustomerDetailsWithValidToken() {
+    void shouldReturnOwnCustomerDetails() {
         BaseAuthResponseDTO<CustomerAuthResponseDTO> registered = registerCustomer(uniqueRegisterRequest());
         String token = registered.getToken();
         Long customerId = registered.getUserDetails().getId();
 
         CustomerDetailsDTO customer = restTestClient.get()
-                .uri("/api/customers/{id}", customerId)
+                .uri("/api/customers/me")
                 .header("Authorization", "Bearer " + token)
                 .exchange()
                 .expectStatus().isOk()
@@ -67,21 +67,34 @@ class CustomerApiIT {
     }
 
     @Test
-    void shouldReturn404ForUnknownCustomerId() {
-        BaseAuthResponseDTO<CustomerAuthResponseDTO> registered = registerCustomer(uniqueRegisterRequest());
-        String token = registered.getToken();
+    void shouldReturnDifferentProfilesForDifferentUsers() {
+        BaseAuthResponseDTO<CustomerAuthResponseDTO> first = registerCustomer(uniqueRegisterRequest());
+        BaseAuthResponseDTO<CustomerAuthResponseDTO> second = registerCustomer(uniqueRegisterRequest());
 
-        restTestClient.get()
-                .uri("/api/customers/999999")
-                .header("Authorization", "Bearer " + token)
+        CustomerDetailsDTO firstProfile = restTestClient.get()
+                .uri("/api/customers/me")
+                .header("Authorization", "Bearer " + first.getToken())
                 .exchange()
-                .expectStatus().isNotFound();
+                .expectStatus().isOk()
+                .expectBody(CustomerDetailsDTO.class)
+                .returnResult().getResponseBody();
+
+        CustomerDetailsDTO secondProfile = restTestClient.get()
+                .uri("/api/customers/me")
+                .header("Authorization", "Bearer " + second.getToken())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(CustomerDetailsDTO.class)
+                .returnResult().getResponseBody();
+
+        assertThat(firstProfile.id()).isNotEqualTo(secondProfile.id());
+        assertThat(firstProfile.email()).isNotEqualTo(secondProfile.email());
     }
 
     @Test
     void shouldReturn403WithoutToken() {
         restTestClient.get()
-                .uri("/api/customers/1")
+                .uri("/api/customers/me")
                 .exchange()
                 .expectStatus().isForbidden();
     }

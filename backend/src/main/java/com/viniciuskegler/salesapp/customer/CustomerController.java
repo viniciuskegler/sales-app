@@ -1,6 +1,8 @@
 package com.viniciuskegler.salesapp.customer;
 
 import com.viniciuskegler.salesapp.customer.dto.CustomerDetailsDTO;
+import com.viniciuskegler.salesapp.user.model.User;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,10 +15,9 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-    @GetMapping("/{id}")
-    public CustomerDetailsDTO findById(@PathVariable Long id) {
-        return customerService.findById(id);
+    @GetMapping("/me")
+    public CustomerDetailsDTO findCurrentCustomer(@AuthenticationPrincipal User currentUser) {
+        return customerService.findByCurrentUser(currentUser);
     }
-
 
 }
