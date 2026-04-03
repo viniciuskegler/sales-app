@@ -1,7 +1,7 @@
-package com.viniciuskegler.salesapp.customer;
+package com.viniciuskegler.salesapp.customer.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.viniciuskegler.salesapp.user.User;
+import com.viniciuskegler.salesapp.user.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

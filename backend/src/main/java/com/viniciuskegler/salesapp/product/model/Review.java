@@ -1,6 +1,6 @@
-package com.viniciuskegler.salesapp.product;
+package com.viniciuskegler.salesapp.product.model;
 
-import com.viniciuskegler.salesapp.customer.Customer;
+import com.viniciuskegler.salesapp.customer.model.Customer;
 import jakarta.persistence.*;
 import lombok.*;
 

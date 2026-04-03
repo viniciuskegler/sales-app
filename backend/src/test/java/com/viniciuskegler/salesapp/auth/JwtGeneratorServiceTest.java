@@ -2,7 +2,7 @@ package com.viniciuskegler.salesapp.auth;
 
 import com.viniciuskegler.salesapp.auth.config.JwtGeneratorService;
 import io.jsonwebtoken.ExpiredJwtException;
-import com.viniciuskegler.salesapp.user.User;
+import com.viniciuskegler.salesapp.user.model.User;
 import com.viniciuskegler.salesapp.user.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

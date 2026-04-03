@@ -1,6 +1,7 @@
 package com.viniciuskegler.salesapp.customer;
 
-import com.viniciuskegler.salesapp.user.User;
+import com.viniciuskegler.salesapp.customer.model.Customer;
+import com.viniciuskegler.salesapp.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

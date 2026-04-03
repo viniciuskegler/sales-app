@@ -1,4 +1,4 @@
-package com.viniciuskegler.salesapp.product;
+package com.viniciuskegler.salesapp.product.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

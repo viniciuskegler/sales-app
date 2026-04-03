@@ -1,9 +1,9 @@
 package com.viniciuskegler.salesapp.mapper;
 
-import com.viniciuskegler.salesapp.customer.Customer;
+import com.viniciuskegler.salesapp.customer.model.Customer;
 import com.viniciuskegler.salesapp.customer.dto.CustomerDetailsDTO;
 import com.viniciuskegler.salesapp.customer.dto.mapper.CustomerMapper;
-import com.viniciuskegler.salesapp.user.User;
+import com.viniciuskegler.salesapp.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

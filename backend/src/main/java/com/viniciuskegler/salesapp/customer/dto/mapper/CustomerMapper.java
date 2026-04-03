@@ -1,6 +1,6 @@
 package com.viniciuskegler.salesapp.customer.dto.mapper;
 
-import com.viniciuskegler.salesapp.customer.Customer;
+import com.viniciuskegler.salesapp.customer.model.Customer;
 import com.viniciuskegler.salesapp.customer.dto.CustomerDetailsDTO;
 import org.springframework.stereotype.Component;
 

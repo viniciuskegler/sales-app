@@ -1,4 +1,4 @@
-package com.viniciuskegler.salesapp.user;
+package com.viniciuskegler.salesapp.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.viniciuskegler.salesapp.user.enums.UserRole;

@@ -3,9 +3,9 @@ package com.viniciuskegler.salesapp.product.dto.mapper;
 import com.viniciuskegler.salesapp.product.dto.ProductDTO;
 import com.viniciuskegler.salesapp.product.dto.ProductDetailsDTO;
 import com.viniciuskegler.salesapp.product.dto.ReviewDTO;
-import com.viniciuskegler.salesapp.product.Product;
-import com.viniciuskegler.salesapp.product.ProductImage;
-import com.viniciuskegler.salesapp.product.Review;
+import com.viniciuskegler.salesapp.product.model.Product;
+import com.viniciuskegler.salesapp.product.model.ProductImage;
+import com.viniciuskegler.salesapp.product.model.Review;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
