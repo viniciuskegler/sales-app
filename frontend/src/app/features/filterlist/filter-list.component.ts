@@ -1,4 +1,11 @@
-import { Component, computed, effect, input, model, OnInit } from "@angular/core";
+import {
+    Component,
+    computed,
+    effect,
+    input,
+    model,
+    OnInit,
+} from "@angular/core";
 import { CategoryFilterDTO, CategoryFilterValue } from "./model/filters.model";
 import {
     FormArray,

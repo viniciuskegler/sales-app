@@ -11,7 +11,7 @@ export function loggingInterceptor(
     req: HttpRequest<unknown>,
     next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> {
-    if(environment.production) {
+    if (environment.production) {
         return next(req);
     }
     return next(req).pipe(

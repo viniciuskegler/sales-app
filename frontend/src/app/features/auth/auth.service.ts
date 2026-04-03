@@ -1,14 +1,19 @@
-import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { tap } from 'rxjs';
-import { environment } from 'environments/environment';
-import { AuthResponse, LoginRequest, RegisterRequest, UserDetails } from './model/auth.model';
+import { inject, Injectable, PLATFORM_ID, signal } from "@angular/core";
+import { isPlatformBrowser } from "@angular/common";
+import { HttpClient } from "@angular/common/http";
+import { Router } from "@angular/router";
+import { tap } from "rxjs";
+import { environment } from "environments/environment";
+import {
+    AuthResponse,
+    LoginRequest,
+    RegisterRequest,
+    UserDetails,
+} from "./model/auth.model";
 
-const TOKEN_KEY = 'auth_token';
+const TOKEN_KEY = "auth_token";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AuthService {
     private readonly http = inject(HttpClient);
     private readonly router = inject(Router);
@@ -31,7 +36,10 @@ export class AuthService {
 
     register(request: RegisterRequest) {
         return this.http
-            .post<AuthResponse>(`${environment.baseurl}/auth/register-customer`, request)
+            .post<AuthResponse>(
+                `${environment.baseurl}/auth/register-customer`,
+                request,
+            )
             .pipe(tap((response) => this.handleAuthResponse(response)));
     }
 
@@ -40,7 +48,7 @@ export class AuthService {
             localStorage.removeItem(TOKEN_KEY);
         }
         this.currentUser.set(null);
-        this.router.navigate(['/auth/login']);
+        this.router.navigate(["/auth/login"]);
     }
 
     getToken(): string | null {

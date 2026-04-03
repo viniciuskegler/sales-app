@@ -61,16 +61,23 @@ export class ProductComponent {
         },
     });
 
-    readonly relatedProductsPaged = computed<PagedResponse<ProductDTO> | null>(() => {
-        const items = this.relatedProducts.value();
-        if (!items) {
-            return null;
-        }
-        return {
-            content: items,
-            page: { totalElements: items.length, totalPages: 1, size: items.length, number: 0 },
-        };
-    });
+    readonly relatedProductsPaged = computed<PagedResponse<ProductDTO> | null>(
+        () => {
+            const items = this.relatedProducts.value();
+            if (!items) {
+                return null;
+            }
+            return {
+                content: items,
+                page: {
+                    totalElements: items.length,
+                    totalPages: 1,
+                    size: items.length,
+                    number: 0,
+                },
+            };
+        },
+    );
 
     constructor() {
         effect(() => {

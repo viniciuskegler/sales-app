@@ -1,6 +1,10 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { ProductDetailsDTO, ProductDTO, ProductResponse } from "./model/products.model";
+import {
+    ProductDetailsDTO,
+    ProductDTO,
+    ProductResponse,
+} from "./model/products.model";
 import { BehaviorSubject, Observable } from "rxjs";
 import type { CategoryFilterValue } from "@features/filterlist/model/filters.model";
 
@@ -19,14 +23,19 @@ export class ProductsService {
         return this.productsSubject.getValue();
     }
 
-    fetchProducts(page: number, limit: number, categories: CategoryFilterValue[]): void {
+    fetchProducts(
+        page: number,
+        limit: number,
+        categories: CategoryFilterValue[],
+    ): void {
         this.startLoading();
         this.productsSubject.next(null);
-        let params = new HttpParams()
-            .set('page', page)
-            .set('pageSize', limit);
+        let params = new HttpParams().set("page", page).set("pageSize", limit);
         if (categories.length > 0) {
-            params = params.set('categories', categories.map(category => category.id).join(','));
+            params = params.set(
+                "categories",
+                categories.map((category) => category.id).join(","),
+            );
         }
         this.httpClient
             .get<ProductResponse>(this.apiUrl, { params })
@@ -37,7 +46,9 @@ export class ProductsService {
     }
 
     fetchProductById(productId: number): Observable<ProductDetailsDTO> {
-        return this.httpClient.get<ProductDetailsDTO>(`${this.apiUrl}/${productId}`);
+        return this.httpClient.get<ProductDetailsDTO>(
+            `${this.apiUrl}/${productId}`,
+        );
     }
 
     getProductById(productId: number): Observable<ProductDetailsDTO> {
@@ -45,7 +56,9 @@ export class ProductsService {
     }
 
     getRelatedProducts(productId: number): Observable<ProductDTO[]> {
-        return this.httpClient.get<ProductDTO[]>(`${this.apiUrl}/${productId}/related`);
+        return this.httpClient.get<ProductDTO[]>(
+            `${this.apiUrl}/${productId}/related`,
+        );
     }
 
     getProductsByName(name: string): Observable<ProductResponse> {

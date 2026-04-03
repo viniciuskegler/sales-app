@@ -1,4 +1,15 @@
-import { Component, computed, DestroyRef, ElementRef, inject, input, model, PLATFORM_ID, signal, ViewChild } from "@angular/core";
+import {
+    Component,
+    computed,
+    DestroyRef,
+    ElementRef,
+    inject,
+    input,
+    model,
+    PLATFORM_ID,
+    signal,
+    ViewChild,
+} from "@angular/core";
 import { isPlatformBrowser } from "@angular/common";
 import { ProductDTO } from "@features/products/model/products.model";
 import { CommonModule, CurrencyPipe, NgOptimizedImage } from "@angular/common";
@@ -28,7 +39,7 @@ import { ZardIconComponent } from "@shared/components/icon/icon.component";
         ZardLoaderComponent,
         ZardPaginationComponent,
         NgOptimizedImage,
-        ZardIconComponent
+        ZardIconComponent,
     ],
 })
 export class ProductListComponent {
@@ -55,7 +66,9 @@ export class ProductListComponent {
 
     private _carouselTrack?: ElementRef<HTMLElement>;
 
-    @ViewChild('carouselTrack') set carouselTrack(el: ElementRef<HTMLElement> | undefined) {
+    @ViewChild("carouselTrack") set carouselTrack(
+        el: ElementRef<HTMLElement> | undefined,
+    ) {
         this._carouselTrack = el;
         this.resizeObserver?.disconnect();
         this.resizeObserver = undefined;
@@ -64,7 +77,8 @@ export class ProductListComponent {
             return;
         }
         const native = el.nativeElement;
-        const update = () => this.canScroll.set(native.scrollWidth > native.clientWidth);
+        const update = () =>
+            this.canScroll.set(native.scrollWidth > native.clientWidth);
         update();
         if (this.isBrowser) {
             this.resizeObserver = new ResizeObserver(update);
@@ -82,7 +96,10 @@ export class ProductListComponent {
     }
 
     scrollCarousel(direction: -1 | 1): void {
-        this._carouselTrack?.nativeElement.scrollBy({ left: direction * 240, behavior: 'smooth' });
+        this._carouselTrack?.nativeElement.scrollBy({
+            left: direction * 240,
+            behavior: "smooth",
+        });
     }
 
     onPaginationChange(value: string | string[]) {
