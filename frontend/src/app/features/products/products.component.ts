@@ -61,6 +61,7 @@ export class ProductsComponent implements OnInit {
             this.productsService.fetchProducts(
                 pageNumber,
                 parseInt(params.params.limit, 10),
+                params.params.categories
             );
             return this.productsService.productsObservable;
         },

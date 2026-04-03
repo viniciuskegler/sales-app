@@ -13,7 +13,7 @@
                         let i = $index
                     ) {
                         <div [formGroupName]="i">
-                            <span z-checkbox formControlName="checked">{{
+                            <span z-checkbox formControlName="checked" [disabled]="selectedCount() >= 3 && !category.value.checked">{{
                                 category.value.name
                             }}</span>
                         </div>

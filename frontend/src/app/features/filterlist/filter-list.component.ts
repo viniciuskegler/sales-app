@@ -1,4 +1,4 @@
-import { Component, effect, input, model, OnInit } from "@angular/core";
+import { Component, computed, effect, input, model, OnInit } from "@angular/core";
 import { CategoryFilterDTO, CategoryFilterValue } from "./model/filters.model";
 import {
     FormArray,
@@ -36,6 +36,11 @@ export class FilterListComponent implements OnInit {
     readonly categoriesValues = toSignal(
         this.filtersForm.get("categories")!.valueChanges,
     );
+
+    readonly selectedCount = computed(() => {
+        const categories = this.categoriesValues() as CategoryFilterValue[];
+        return categories?.filter((c) => c.checked).length ?? 0;
+    });
 
     get categoriesFormArray(): FormGroup[] {
         return (this.filtersForm.get("categories") as FormArray)

@@ -1,7 +1,8 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { ProductDetailsDTO, ProductDTO, ProductResponse } from "./model/products.model";
 import { BehaviorSubject, Observable } from "rxjs";
+import type { CategoryFilterValue } from "@features/filterlist/model/filters.model";
 
 @Injectable({ providedIn: "root" })
 export class ProductsService {
@@ -18,13 +19,17 @@ export class ProductsService {
         return this.productsSubject.getValue();
     }
 
-    fetchProducts(page: number, limit: number): void {
+    fetchProducts(page: number, limit: number, categories: CategoryFilterValue[]): void {
         this.startLoading();
         this.productsSubject.next(null);
+        let params = new HttpParams()
+            .set('page', page)
+            .set('pageSize', limit);
+        if (categories.length > 0) {
+            params = params.set('categories', categories.map(category => category.id).join(','));
+        }
         this.httpClient
-            .get<ProductResponse>(
-                `${this.apiUrl}?page=${page}&pageSize=${limit}`,
-            )
+            .get<ProductResponse>(this.apiUrl, { params })
             .subscribe((response) => {
                 this.productsSubject.next(response);
             })
