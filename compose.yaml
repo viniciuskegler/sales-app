@@ -10,7 +10,11 @@ services:
   rabbitmq:
     image: 'rabbitmq:latest'
     environment:
-      - '${RABBITMQ_DEFAULT_PASS}=secret'
-      - '${RABBITMQ_DEFAULT_USER}=myuser'
+      - 'RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}'
+      - 'RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}'
     ports:
       - '${RABBITMQ_PORT}'
+  redis:
+    image: 'redis:latest'
+    ports:
+      - '${REDIS_PORT}'

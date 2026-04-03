@@ -12,4 +12,4 @@ cd "$ROOT_DIR/backend"
 ./mvnw test -Dtest='!*IT'
 
 echo "==> All unit tests passed. Starting backend..."
-./mvnw spring-boot:run
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev

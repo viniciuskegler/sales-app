@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:zardui.com)",
-      "Bash(npx zard-cli:*)"
+      "Bash(npx zard-cli:*)",
+      "Bash(jar tf:*)",
+      "Bash(grep -v '$')",
+      "Bash(javap -p ~/.m2/repository/org/springframework/data/spring-data-redis/4.0.1/spring-data-redis-4.0.1.jar '!/org/springframework/data/redis/serializer/GenericJacksonJsonRedisSerializer.class')",
+      "Bash(javap -p -cp ~/.m2/repository/org/springframework/data/spring-data-redis/4.0.1/spring-data-redis-4.0.1.jar org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer)",
+      "Bash(javap:*)"
     ]
   }
 }

@@ -9,6 +9,7 @@ import com.viniciuskegler.salesapp.exception.RecordNotFoundException;
 import com.viniciuskegler.salesapp.product.specification.ProductSpecification;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import org.springframework.cache.annotation.Cacheable;
 import org.apache.commons.text.WordUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Validated
@@ -49,11 +51,13 @@ public class ProductService {
                 .map(productMapper::toProductDTO);
     }
 
+    @Cacheable("product-details")
     public ProductDetailsDTO findById(@NotNull @Positive Long id) {
         return productRepository.findById(id).map(productMapper::toProductDetailsDTO)
                 .orElseThrow(() -> new RecordNotFoundException(id));
     }
 
+    @Cacheable("related-products")
     public List<ProductDTO> getRelatedProducts(@NotNull @Positive Long id) {
         if (!productRepository.existsById(id)) {
             throw new RecordNotFoundException(id);
@@ -61,12 +65,13 @@ public class ProductService {
         return productRepository.findRelatedProducts(id, PageRequest.of(0, 10))
                 .stream()
                 .map(productMapper::toProductDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
+    @Cacheable("product-categories")
     public List<ProductCategoryDTO> getAllProductsCategories() {
         return productRepository.getAllProductsCategories().stream().map(cat ->
                 new ProductCategoryDTO(WordUtils.capitalize(cat.replace("-", " ")), cat)
-        ).toList();
+        ).collect(Collectors.toList());
     }
 }
