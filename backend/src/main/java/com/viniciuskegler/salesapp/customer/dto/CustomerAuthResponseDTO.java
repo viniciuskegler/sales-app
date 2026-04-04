@@ -1,4 +1,4 @@
-package com.viniciuskegler.salesapp.auth.dto;
+package com.viniciuskegler.salesapp.customer.dto;
 
 import com.viniciuskegler.salesapp.user.dto.UserDTO;
 

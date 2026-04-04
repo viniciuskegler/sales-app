@@ -5,7 +5,7 @@ import com.viniciuskegler.salesapp.product.dto.ProductDTO;
 import com.viniciuskegler.salesapp.product.dto.ProductDetailsDTO;
 import com.viniciuskegler.salesapp.product.dto.mapper.ProductMapper;
 import com.viniciuskegler.salesapp.shared.enums.SortOrder;
-import com.viniciuskegler.salesapp.exception.RecordNotFoundException;
+import com.viniciuskegler.salesapp.shared.exception.RecordNotFoundException;
 import com.viniciuskegler.salesapp.product.specification.ProductSpecification;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

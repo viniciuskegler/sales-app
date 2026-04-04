@@ -15,6 +15,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.context.WebApplicationContext;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -23,6 +24,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @Testcontainers
@@ -34,6 +36,11 @@ class ProductsApiIT {
     @ServiceConnection
     static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer(DockerImageName.parse("postgres:16"));
 
+    @Container
+    @ServiceConnection
+    static GenericContainer<?> redisContainer =
+            new GenericContainer<>(DockerImageName.parse("redis:7-alpine")).withExposedPorts(6379);
+
     @Autowired
     private WebApplicationContext context;
 
@@ -41,8 +48,7 @@ class ProductsApiIT {
 
     @BeforeEach
     void beforeEach() {
-        restTestClient = RestTestClient.bindTo(webAppContextSetup(context).build())
-                .defaultHeaders(headers -> headers.setBasicAuth("user", "password")).build();
+        restTestClient = RestTestClient.bindTo(webAppContextSetup(context).apply(springSecurity()).build()).build();
     }
 
 

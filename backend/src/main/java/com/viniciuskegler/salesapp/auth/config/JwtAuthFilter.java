@@ -1,5 +1,6 @@
 package com.viniciuskegler.salesapp.auth.config;
 
+import com.viniciuskegler.salesapp.auth.JwtGeneratorService;
 import jakarta.annotation.Nonnull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

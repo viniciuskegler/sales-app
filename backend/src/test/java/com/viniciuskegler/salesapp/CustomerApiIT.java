@@ -1,8 +1,8 @@
 package com.viniciuskegler.salesapp;
 
 import com.viniciuskegler.salesapp.auth.dto.BaseAuthResponseDTO;
-import com.viniciuskegler.salesapp.auth.dto.CustomerAuthResponseDTO;
-import com.viniciuskegler.salesapp.auth.dto.CustomerRegisterRequestDTO;
+import com.viniciuskegler.salesapp.customer.dto.CustomerAuthResponseDTO;
+import com.viniciuskegler.salesapp.customer.dto.CustomerRegisterRequestDTO;
 import com.viniciuskegler.salesapp.customer.dto.CustomerDetailsDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

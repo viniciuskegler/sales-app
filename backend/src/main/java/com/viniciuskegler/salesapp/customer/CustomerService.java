@@ -2,7 +2,7 @@ package com.viniciuskegler.salesapp.customer;
 
 import com.viniciuskegler.salesapp.customer.dto.CustomerDetailsDTO;
 import com.viniciuskegler.salesapp.customer.dto.mapper.CustomerMapper;
-import com.viniciuskegler.salesapp.exception.RecordNotFoundException;
+import com.viniciuskegler.salesapp.shared.exception.RecordNotFoundException;
 import com.viniciuskegler.salesapp.user.model.User;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;

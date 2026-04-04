@@ -2,8 +2,8 @@ package com.viniciuskegler.salesapp;
 
 import com.viniciuskegler.salesapp.auth.dto.BaseAuthDTO;
 import com.viniciuskegler.salesapp.auth.dto.BaseAuthResponseDTO;
-import com.viniciuskegler.salesapp.auth.dto.CustomerAuthResponseDTO;
-import com.viniciuskegler.salesapp.auth.dto.CustomerRegisterRequestDTO;
+import com.viniciuskegler.salesapp.customer.dto.CustomerAuthResponseDTO;
+import com.viniciuskegler.salesapp.customer.dto.CustomerRegisterRequestDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,7 +129,7 @@ class AuthApiIT {
     @Test
     void shouldDenyProtectedEndpointWithoutToken() {
         restTestClient.get()
-                .uri("/api/customers/1")
+                .uri("/api/customers/me")
                 .exchange()
                 .expectStatus().isForbidden();
     }
@@ -138,10 +138,9 @@ class AuthApiIT {
     void shouldAllowProtectedEndpointWithValidToken() {
         BaseAuthResponseDTO<CustomerAuthResponseDTO> registered = registerCustomer(uniqueRegisterRequest());
         String token = registered.getToken();
-        Long customerId = registered.getUserDetails().getId();
 
         restTestClient.get()
-                .uri("/api/customers/{id}", customerId)
+                .uri("/api/customers/me")
                 .header("Authorization", "Bearer " + token)
                 .exchange()
                 .expectStatus().isOk();
@@ -153,7 +152,7 @@ class AuthApiIT {
         String tampered = registered.getToken() + "tampered";
 
         restTestClient.get()
-                .uri("/api/customers/{id}", registered.getUserDetails().getId())
+                .uri("/api/customers/me")
                 .header("Authorization", "Bearer " + tampered)
                 .exchange()
                 .expectStatus().isForbidden();

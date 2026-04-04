@@ -1,6 +1,6 @@
 package com.viniciuskegler.salesapp.shared.controller;
 
-import com.viniciuskegler.salesapp.exception.RecordNotFoundException;
+import com.viniciuskegler.salesapp.shared.exception.RecordNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;

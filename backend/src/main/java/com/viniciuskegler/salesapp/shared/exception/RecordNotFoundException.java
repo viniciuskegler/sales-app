@@ -1,4 +1,4 @@
-package com.viniciuskegler.salesapp.exception;
+package com.viniciuskegler.salesapp.shared.exception;
 
 import java.io.Serial;
 
