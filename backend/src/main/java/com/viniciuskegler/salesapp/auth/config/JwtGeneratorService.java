@@ -1,5 +1,6 @@
 package com.viniciuskegler.salesapp.auth.config;
 
+import com.viniciuskegler.salesapp.customer.model.Customer;
 import com.viniciuskegler.salesapp.user.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -31,16 +32,17 @@ public class JwtGeneratorService {
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public Map<String, Object> generatePayload(User user){
+    public Map<String, Object> generatePayload(User user, String fullName){
         Map<String, Object> payloadData = new HashMap<>();
         payloadData.put("username", user.getUsername());
         payloadData.put("id", user.getId().toString());
         payloadData.put("role", user.getRole());
+        payloadData.put("fullName", fullName);
         return payloadData;
     }
 
-    public String generateToken(User user) {
-        Map<String, Object> payloadData = generatePayload(user);
+    public String generateToken(User user, Customer customer) {
+        Map<String, Object> payloadData = generatePayload(user, customer.getFullName());
         return Jwts
                 .builder()
                 .claims(payloadData)

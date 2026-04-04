@@ -3,8 +3,8 @@ import { RouterModule, Routes } from "@angular/router";
 import { HomeComponent } from "./home.component";
 import { ProductsComponent } from "@features/products/products.component";
 import { ProductComponent } from "@features/products/product/product.component";
-import { productResolver } from "@features/products/product/product.resolver";
 import { filtersResolver } from "@features/products/filters.resolver";
+import { authGuard } from "@core/guards/auth.guard";
 
 const routes: Routes = [
     {
@@ -24,7 +24,14 @@ const routes: Routes = [
             {
                 path: "product/:productId",
                 component: ProductComponent,
-                resolve: { data: productResolver },
+            },
+            {
+                path: "account",
+                canActivate: [authGuard],
+                loadComponent: () =>
+                    import("@features/account/account.component").then(
+                        (m) => m.AccountComponent,
+                    ),
             },
         ],
     },

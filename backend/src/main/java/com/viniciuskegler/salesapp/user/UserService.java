@@ -75,7 +75,7 @@ public class UserService {
     private BaseAuthResponseDTO<CustomerAuthResponseDTO> buildCustomerAuthResponseDTO(User user, Customer customer, String message) {
         BaseAuthResponseDTO<CustomerAuthResponseDTO> responseDTO = new BaseAuthResponseDTO<>();
         responseDTO.setMessage(message);
-        responseDTO.setToken(jwtService.generateToken(user));
+        responseDTO.setToken(jwtService.generateToken(user, customer));
         CustomerAuthResponseDTO customerResponseDTO = new CustomerAuthResponseDTO();
         customerResponseDTO.setId(customer.getId());
         customerResponseDTO.setRole(user.getRole());

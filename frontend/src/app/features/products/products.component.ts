@@ -1,18 +1,18 @@
 import {
+    ChangeDetectionStrategy,
     Component,
     computed,
     inject,
     OnInit,
     signal,
     TemplateRef,
-    ViewContainerRef,
     viewChild,
-    ChangeDetectionStrategy,
+    ViewContainerRef,
 } from "@angular/core";
 import { ProductListComponent } from "@features/productlist/product-list.component";
 import { FilterListComponent } from "@features/filterlist/filter-list.component";
 import { ProductsService } from "./products.service";
-import { rxResource, takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { rxResource } from "@angular/core/rxjs-interop";
 import { FiltersService } from "@features/filterlist/filters.service";
 import { ActivatedRoute } from "@angular/router";
 import {
@@ -21,8 +21,10 @@ import {
 } from "@features/filterlist/model/filters.model";
 import { ZardButtonComponent } from "@shared/components/button/button.component";
 import { ZardIconComponent } from "@shared/components/icon/icon.component";
+import { ErrorStateComponent } from "@shared/components/error-state/error-state.component";
 import { ZardSheetService } from "@shared/components/sheet/sheet.service";
 import { ZardSheetRef } from "@shared/components/sheet/sheet-ref";
+import { ZardLoaderComponent } from "@shared/components/loader/loader.component";
 
 @Component({
     selector: "app-products-component",
@@ -34,6 +36,8 @@ import { ZardSheetRef } from "@shared/components/sheet/sheet-ref";
         FilterListComponent,
         ZardButtonComponent,
         ZardIconComponent,
+        ErrorStateComponent,
+        ZardLoaderComponent
     ],
 })
 export class ProductsComponent implements OnInit {
@@ -41,7 +45,6 @@ export class ProductsComponent implements OnInit {
     readonly categoriesValue = signal<CategoryFilterValue[]>([]);
     readonly currentPageValue = signal<number>(1);
 
-    readonly isLoading = signal<boolean>(false);
     readonly categoryList = signal<CategoryFilterDTO[]>([]);
 
     readonly filtersSheetTemplate =
@@ -56,14 +59,12 @@ export class ProductsComponent implements OnInit {
 
     readonly resource = rxResource({
         params: this.params,
-        stream: (params) => {
-            const pageNumber = params.params.page - 1;
-            this.productsService.fetchProducts(
-                pageNumber,
-                parseInt(params.params.limit, 10),
-                params.params.categories,
+        stream: ({ params }) => {
+            return this.productsService.fetchProductsStream(
+                params.page - 1,
+                parseInt(params.limit, 10),
+                params.categories,
             );
-            return this.productsService.productsObservable;
         },
     });
 
@@ -72,14 +73,6 @@ export class ProductsComponent implements OnInit {
     route = inject(ActivatedRoute);
     sheetService = inject(ZardSheetService);
     viewContainerRef = inject(ViewContainerRef);
-
-    constructor() {
-        this.productsService.isLoadingObservable
-            .pipe(takeUntilDestroyed())
-            .subscribe((loading) => {
-                this.isLoading.set(loading);
-            });
-    }
 
     ngOnInit(): void {
         const categories = this.route.snapshot.data["data"];

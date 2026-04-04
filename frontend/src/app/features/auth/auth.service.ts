@@ -19,12 +19,24 @@ export class AuthService {
     private readonly router = inject(Router);
     private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-    readonly currentUser = signal<UserDetails | null>(null);
+    readonly currentUser = signal<UserDetails | null>(this.restoreUser());
+    readonly isLoggedIn = signal<boolean>(this.getToken() !== null);
 
-    constructor() {
+    private restoreUser(): UserDetails | null {
         const token = this.getToken();
-        if (token) {
-            // TODO: decode token claims to restore currentUser on page reload
+        if (!token) {
+            return null;
+        }
+        try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            return {
+                id: Number(payload["id"]),
+                email: payload["username"],
+                role: payload["role"],
+                fullName: payload["fullName"],
+            };
+        } catch {
+            return null;
         }
     }
 
@@ -48,15 +60,12 @@ export class AuthService {
             localStorage.removeItem(TOKEN_KEY);
         }
         this.currentUser.set(null);
-        this.router.navigate(["/auth/login"]);
+        this.isLoggedIn.set(false);
+        this.router.navigate(["/"]);
     }
 
     getToken(): string | null {
         return this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null;
-    }
-
-    isLoggedIn(): boolean {
-        return this.getToken() !== null;
     }
 
     private handleAuthResponse(response: AuthResponse): void {
@@ -64,5 +73,7 @@ export class AuthService {
             localStorage.setItem(TOKEN_KEY, response.token);
         }
         this.currentUser.set(response.userDetails);
+        this.isLoggedIn.set(true);
+        this.router.navigate(["/"]);
     }
 }

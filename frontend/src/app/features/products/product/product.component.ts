@@ -10,7 +10,9 @@ import { CurrencyPipe, DatePipe, DecimalPipe } from "@angular/common";
 import { ActivatedRoute } from "@angular/router";
 import { toSignal, rxResource } from "@angular/core/rxjs-interop";
 import { map, of } from "rxjs";
-import { ProductDetailsDTO, ProductDTO } from "../model/products.model";
+import { ZardLoaderComponent } from "@shared/components/loader/loader.component";
+import { ErrorStateComponent } from "@shared/components/error-state/error-state.component";
+import { ProductDTO } from "../model/products.model";
 import { ProductsService } from "../products.service";
 import { PagedResponse } from "@core/model/pagination.model";
 import { ZardButtonComponent } from "@shared/components/button/button.component";
@@ -34,6 +36,8 @@ import { ProductListComponent } from "@features/productlist/product-list.compone
         ZardCarouselContentComponent,
         ZardCarouselItemComponent,
         ProductListComponent,
+        ZardLoaderComponent,
+        ErrorStateComponent,
         CurrencyPipe,
         DatePipe,
         DecimalPipe,
@@ -43,10 +47,22 @@ export class ProductComponent {
     private readonly route = inject(ActivatedRoute);
     private readonly productsService = inject(ProductsService);
 
-    readonly product = toSignal(
-        this.route.data.pipe(map((d) => d["data"] as ProductDetailsDTO)),
-        { initialValue: null },
+    private readonly routeProductId = toSignal(
+        this.route.paramMap.pipe(map((p) => Number(p.get("productId")))),
+        { initialValue: 0 },
     );
+
+    readonly productResource = rxResource({
+        params: this.routeProductId,
+        stream: ({ params: id }) => {
+            if (!id) {
+                return of(null);
+            }
+            return this.productsService.getProductById(id);
+        },
+    });
+
+    readonly product = computed(() => this.productResource.value() ?? null);
     readonly addedToCart = signal(false);
 
     readonly productId = computed(() => this.product()?.id);

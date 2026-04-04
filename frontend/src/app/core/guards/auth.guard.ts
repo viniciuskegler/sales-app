@@ -1,14 +1,16 @@
 import { inject } from "@angular/core";
-import { CanActivateFn, Router } from "@angular/router";
+import { CanActivateFn } from "@angular/router";
 import { AuthService } from "@features/auth/auth.service";
+import { AuthModalComponent } from "@features/auth/auth-modal/auth-modal.component";
+import { ZardDialogService } from "@shared/components/dialog/dialog.service";
 
 export const authGuard: CanActivateFn = () => {
     const authService = inject(AuthService);
-    const router = inject(Router);
 
     if (authService.isLoggedIn()) {
         return true;
     }
 
-    return router.createUrlTree(["/auth/login"]);
+    inject(ZardDialogService).open(AuthModalComponent);
+    return false;
 };

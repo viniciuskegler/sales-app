@@ -1,0 +1,30 @@
+<div class="mx-auto w-[90%] max-w-screen-md py-12">
+    <div class="flex flex-col gap-6">
+        <div class="flex items-center gap-3">
+            <z-icon zType="user" class="size-10" />
+            <h1 class="text-2xl font-bold">My Account</h1>
+        </div>
+        @if (authService.currentUser(); as user) {
+            <div class="flex flex-col gap-2 rounded-xl border p-6">
+                <div class="flex flex-col gap-1">
+                    <span class="text-sm text-muted-foreground">Full name</span>
+                    <span class="font-medium">{{ user.fullName }}</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <span class="text-sm text-muted-foreground">Email</span>
+                    <span class="font-medium">{{ user.email }}</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <span class="text-sm text-muted-foreground">Role</span>
+                    <span class="font-medium">{{ user.role }}</span>
+                </div>
+            </div>
+        }
+        <div>
+            <button z-button zType="destructive" (click)="authService.logout()">
+                <z-icon zType="log-out" />
+                Logout
+            </button>
+        </div>
+    </div>
+</div>

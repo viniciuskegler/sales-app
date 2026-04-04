@@ -1,0 +1,164 @@
+<div class="flex flex-col gap-5 pt-5">
+    <div class="flex rounded-lg border p-1">
+        <button
+            type="button"
+            class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+            [class]="activeTab() === 'login' ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'"
+            (click)="switchTab('login')">
+            Sign in
+        </button>
+        <button
+            type="button"
+            class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+            [class]="activeTab() === 'register' ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'"
+            (click)="switchTab('register')">
+            Create account
+        </button>
+    </div>
+
+    @if (errorMessage()) {
+        <div class="flex items-center gap-2 rounded-md border border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <z-icon zType="circle-x" zSize="sm" />
+            {{ errorMessage() }}
+        </div>
+    }
+
+    @if (activeTab() === 'login') {
+        <form [formGroup]="loginForm" (ngSubmit)="submitLogin()" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium">Email</label>
+                <input
+                    z-input
+                    type="email"
+                    placeholder="you@example.com"
+                    formControlName="email"
+                    [zStatus]="lEmail.invalid && lEmail.touched ? 'error' : null"
+                />
+                @if (lEmail.touched && lEmail.hasError('required')) {
+                    <span class="text-xs text-destructive">Email is required</span>
+                } @else if (lEmail.touched && lEmail.hasError('email')) {
+                    <span class="text-xs text-destructive">Enter a valid email</span>
+                }
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium">Password</label>
+                <div class="relative">
+                    <input
+                        z-input
+                        [type]="showPassword() ? 'text' : 'password'"
+                        placeholder="••••••••"
+                        formControlName="password"
+                        class="w-full pr-10"
+                        [zStatus]="lPassword.invalid && lPassword.touched ? 'error' : null"
+                    />
+                    <button
+                        type="button"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        (click)="showPassword.set(!showPassword())">
+                        <z-icon [zType]="showPassword() ? 'eye' : 'eye'" zSize="sm" />
+                    </button>
+                </div>
+                @if (lPassword.touched && lPassword.hasError('required')) {
+                    <span class="text-xs text-destructive">Password is required</span>
+                }
+            </div>
+            <button z-button zFull [zDisabled]="isLoading()" type="submit">
+                @if (isLoading()) {
+                    <z-icon zType="loader-circle" class="animate-spin" zSize="sm" />
+                }
+                Sign in
+            </button>
+        </form>
+    }
+
+    @if (activeTab() === 'register') {
+        <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="flex flex-col gap-4">
+            <div class="flex gap-3">
+                <div class="flex flex-1 flex-col gap-1">
+                    <label class="text-sm font-medium">First name</label>
+                    <input
+                        z-input
+                        type="text"
+                        placeholder="John"
+                        formControlName="firstName"
+                        [zStatus]="rFirstName.invalid && rFirstName.touched ? 'error' : null"
+                    />
+                    @if (rFirstName.touched && rFirstName.hasError('required')) {
+                        <span class="text-xs text-destructive">Required</span>
+                    }
+                </div>
+                <div class="flex flex-1 flex-col gap-1">
+                    <label class="text-sm font-medium">Last name</label>
+                    <input
+                        z-input
+                        type="text"
+                        placeholder="Doe"
+                        formControlName="lastName"
+                        [zStatus]="rLastName.invalid && rLastName.touched ? 'error' : null"
+                    />
+                    @if (rLastName.touched && rLastName.hasError('required')) {
+                        <span class="text-xs text-destructive">Required</span>
+                    }
+                </div>
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium">Email</label>
+                <input
+                    z-input
+                    type="email"
+                    placeholder="you@example.com"
+                    formControlName="email"
+                    [zStatus]="rEmail.invalid && rEmail.touched ? 'error' : null"
+                />
+                @if (rEmail.touched && rEmail.hasError('required')) {
+                    <span class="text-xs text-destructive">Email is required</span>
+                } @else if (rEmail.touched && rEmail.hasError('email')) {
+                    <span class="text-xs text-destructive">Enter a valid email</span>
+                }
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium">Phone number</label>
+                <input
+                    z-input
+                    type="tel"
+                    placeholder="+1 555 000 0000"
+                    formControlName="phoneNumber"
+                    [zStatus]="rPhoneNumber.invalid && rPhoneNumber.touched ? 'error' : null"
+                />
+                @if (rPhoneNumber.touched && rPhoneNumber.hasError('required')) {
+                    <span class="text-xs text-destructive">Phone number is required</span>
+                }
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium">Password</label>
+                <div class="relative">
+                    <input
+                        z-input
+                        [type]="showPassword() ? 'text' : 'password'"
+                        placeholder="••••••••"
+                        formControlName="password"
+                        class="w-full pr-10"
+                        [zStatus]="rPassword.invalid && rPassword.touched ? 'error' : null"
+                    />
+                    <button
+                        type="button"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        (click)="showPassword.set(!showPassword())">
+                        <z-icon [zType]="showPassword() ? 'eye' : 'eye'" zSize="sm" />
+                    </button>
+                </div>
+                @if (rPassword.touched && rPassword.hasError('required')) {
+                    <span class="text-xs text-destructive">Password is required</span>
+                } @else if (rPassword.touched && rPassword.hasError('minlength')) {
+                    <span class="text-xs text-destructive">Must be at least 8 characters</span>
+                }
+            </div>
+            <button z-button zFull [zDisabled]="isLoading()" type="submit">
+                @if (isLoading()) {
+                    <z-icon zType="loader-circle" class="animate-spin" zSize="sm" />
+                }
+                Create account
+            </button>
+        </form>
+    }
+</div>

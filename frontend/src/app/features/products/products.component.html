@@ -11,15 +11,26 @@
         class="hidden w-1/8 lg:block"
         [categoryList]="categoryList()"
         [(categoryFilterValue)]="categoriesValue" />
-    <app-product-list
-        id="productList"
-        class="w-full lg:w-7/8"
-        [products]="resource.value() ?? null"
-        [pagination]="paginationValue()" 
-        (paginationChange)="onPaginationChange($event)"
-        [(currentPage)]="currentPageValue"
-        [isLoading]="isLoading()"
-        />
+    @if (!resource.error() && resource.isLoading()) {
+        <div class="flex w-[100vw] h-[85vh] items-center justify-center">
+            <z-loader [zSize]="'lg'"/>
+        </div>
+    } @else if (resource.error()) {
+        <div class="flex w-full items-center justify-center py-16 lg:w-7/8">
+            <app-error-state
+                message="Failed to load products"
+                (retry)="resource.reload()" />
+        </div>
+    } @else {
+        <app-product-list
+            id="productList"
+            class="w-full lg:w-7/8"
+            [products]="resource.value() ?? null"
+            [pagination]="paginationValue()"
+            (paginationChange)="onPaginationChange($event)"
+            [(currentPage)]="currentPageValue"
+            [isLoading]="resource.isLoading()" />
+    }
 </div>
 
 <ng-template #filtersSheet>

@@ -1,13 +1,31 @@
 @if (showHeaderObs | async) {
     <div
         class="bg-wheat flex h-[48px] w-full flex-row items-center justify-between px-[10px]">
-        <div>
+        <div class="flex flex-1">
             <a href="/">
-                <img src="images/logo2downscalled.png" alt="Logo" class="h-[35px]" />
+                <img
+                    src="images/logo2downscalled.png"
+                    alt="Logo"
+                    class="h-[35px]" />
             </a>
         </div>
-        <app-search-bar class="w-1/2 max-lg:w-[75%]" />
-        <div>
+        <div class="flex flex-2 max-lg:w-[80%]">
+            <app-search-bar class="w-full" />
+        </div>
+        <div class="flex flex-1 items-center justify-end gap-x-3">
+            @if (authService.isLoggedIn()) {
+                <a class="flex flex-row" routerLink="/account">
+                    <z-icon zType="user" class="size-7 cursor-pointer" />
+                    <span class="hidden text-m whitespace-nowrap lg:inline">{{
+                        authService.currentUser()?.fullName
+                    }}</span>
+                </a>
+            } @else {
+                <button type="button" class="flex items-center gap-x-2" (click)="openAuthModal()">
+                    <z-icon zType="user" class="size-7 cursor-pointer" />
+                    <span class="hidden text-m whitespace-nowrap lg:inline">Login or create account</span>
+                </button>
+            }
             <a href="/cart">
                 <z-icon zType="shopping-cart" class="size-7 cursor-pointer" />
             </a>

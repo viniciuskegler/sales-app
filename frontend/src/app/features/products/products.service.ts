@@ -23,13 +23,11 @@ export class ProductsService {
         return this.productsSubject.getValue();
     }
 
-    fetchProducts(
+    fetchProductsStream(
         page: number,
         limit: number,
         categories: CategoryFilterValue[],
-    ): void {
-        this.startLoading();
-        this.productsSubject.next(null);
+    ): Observable<ProductResponse> {
         let params = new HttpParams().set("page", page).set("pageSize", limit);
         if (categories.length > 0) {
             params = params.set(
@@ -37,12 +35,7 @@ export class ProductsService {
                 categories.map((category) => category.id).join(","),
             );
         }
-        this.httpClient
-            .get<ProductResponse>(this.apiUrl, { params })
-            .subscribe((response) => {
-                this.productsSubject.next(response);
-            })
-            .add(() => this.finishLoading());
+        return this.httpClient.get<ProductResponse>(this.apiUrl, { params });
     }
 
     fetchProductById(productId: number): Observable<ProductDetailsDTO> {
