@@ -7,7 +7,10 @@
       "Bash(grep -v '$')",
       "Bash(javap -p ~/.m2/repository/org/springframework/data/spring-data-redis/4.0.1/spring-data-redis-4.0.1.jar '!/org/springframework/data/redis/serializer/GenericJacksonJsonRedisSerializer.class')",
       "Bash(javap -p -cp ~/.m2/repository/org/springframework/data/spring-data-redis/4.0.1/spring-data-redis-4.0.1.jar org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer)",
-      "Bash(javap:*)"
+      "Bash(javap:*)",
+      "Bash(rm -rf C:/Projects/sales-app/infra)",
+      "Bash(mkdir C:/Projects/sales-app/infra)",
+      "Bash(cdk init:*)"
     ]
   }
 }
