@@ -18,7 +18,8 @@ public class ProductMapper {
                 product.getId(),
                 product.getTitle(),
                 product.getPrice(),
-                product.getThumbnail()
+                product.getThumbnail(),
+                product.getDiscountPercentage()
         );
     }
 

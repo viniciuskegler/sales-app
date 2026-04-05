@@ -26,8 +26,13 @@
                     <span class="hidden text-m whitespace-nowrap lg:inline">Login or create account</span>
                 </button>
             }
-            <a href="/cart">
+            <a routerLink="/cart" class="relative">
                 <z-icon zType="shopping-cart" class="size-7 cursor-pointer" />
+                @if (cartService.totalItems() > 0) {
+                    <span class="bg-primary text-primary-foreground absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full text-[10px] font-bold">
+                        {{ cartService.totalItems() }}
+                    </span>
+                }
             </a>
         </div>
     </div>

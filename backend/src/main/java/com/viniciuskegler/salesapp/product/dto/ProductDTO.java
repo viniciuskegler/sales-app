@@ -24,7 +24,10 @@ public record ProductDTO(
 
         @NotNull
         @NotBlank
-        String thumbnail
+        String thumbnail,
+
+        @Digits(integer = 3, fraction = 2)
+        BigDecimal discountPercentage
 
 ) {
 }

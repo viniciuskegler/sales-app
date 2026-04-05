@@ -14,6 +14,7 @@ import { ZardLoaderComponent } from "@shared/components/loader/loader.component"
 import { ErrorStateComponent } from "@shared/components/error-state/error-state.component";
 import { ProductDTO } from "../model/products.model";
 import { ProductsService } from "../products.service";
+import { CartService } from "@features/cart/cart.service";
 import { PagedResponse } from "@core/model/pagination.model";
 import { ZardButtonComponent } from "@shared/components/button/button.component";
 import { ZardBadgeComponent } from "@shared/components/badge/badge.component";
@@ -46,6 +47,7 @@ import { ProductListComponent } from "@features/productlist/product-list.compone
 export class ProductComponent {
     private readonly route = inject(ActivatedRoute);
     private readonly productsService = inject(ProductsService);
+    private readonly cartService = inject(CartService);
 
     private readonly routeProductId = toSignal(
         this.route.paramMap.pipe(map((p) => Number(p.get("productId")))),
@@ -124,7 +126,11 @@ export class ProductComponent {
     });
 
     addToCart(): void {
-        // TODO: wire up CartService once implemented
+        const p = this.product();
+        if (!p) {
+            return;
+        }
+        this.cartService.addProduct(p);
         this.addedToCart.set(true);
     }
 }

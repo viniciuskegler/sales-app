@@ -33,6 +33,13 @@ const routes: Routes = [
                         (m) => m.AccountComponent,
                     ),
             },
+            {
+                path: "cart",
+                loadComponent: () =>
+                    import("@features/cart/cart.component").then(
+                        (m) => m.CartComponent,
+                    ),
+            },
         ],
     },
 ];

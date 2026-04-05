@@ -22,6 +22,7 @@ import { ZardLoaderComponent } from "@shared/components/loader/loader.component"
 import { ZardPaginationComponent } from "@shared/components/pagination/pagination.component";
 import { PagedResponse } from "@core/model/pagination.model";
 import { ZardIconComponent } from "@shared/components/icon/icon.component";
+import { CartService } from "@features/cart/cart.service";
 
 @Component({
     standalone: true,
@@ -90,6 +91,15 @@ export class ProductListComponent {
     private resizeObserver?: ResizeObserver;
     private readonly destroyRef = inject(DestroyRef);
     private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+    private readonly cartService = inject(CartService);
+
+    readonly cartProductIds = computed(
+        () => new Set(this.cartService.items().map((i) => i.productId)),
+    );
+
+    addToCart(product: ProductDTO): void {
+        this.cartService.addProduct(product);
+    }
 
     constructor() {
         this.destroyRef.onDestroy(() => this.resizeObserver?.disconnect());

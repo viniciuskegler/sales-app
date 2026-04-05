@@ -63,6 +63,12 @@ class ProductsApiIT {
 
         assertThat(products).isNotNull();
         assertThat(products.getContent()).isNotNull();
+        products.getContent().forEach(p -> {
+            assertThat(p.id()).isPositive();
+            assertThat(p.title()).isNotBlank();
+            assertThat(p.price()).isNotNull().isPositive();
+            assertThat(p.thumbnail()).isNotBlank();
+        });
     }
 
     @ParameterizedTest
@@ -215,7 +221,28 @@ class ProductsApiIT {
 
         assertThat(related).isNotNull();
         assertThat(related).hasSizeLessThanOrEqualTo(10);
-        related.forEach(p -> assertThat(p.id()).isNotEqualTo(1L));
+        related.forEach(p -> {
+            assertThat(p.id()).isNotEqualTo(1L);
+            assertThat(p.title()).isNotBlank();
+            assertThat(p.price()).isNotNull().isPositive();
+            assertThat(p.thumbnail()).isNotBlank();
+        });
+    }
+
+    @Test
+    void shouldIncludeDiscountPercentageInProductList() {
+        RestResponsePage<ProductDTO> products = restTestClient.get()
+                .uri("/api/products")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(new ParameterizedTypeReference<RestResponsePage<ProductDTO>>() {})
+                .returnResult().getResponseBody();
+
+        assertThat(products).isNotNull();
+        assertThat(products.getContent()).isNotEmpty();
+        boolean hasDiscount = products.getContent().stream()
+                .anyMatch(p -> p.discountPercentage() != null && p.discountPercentage().doubleValue() > 0);
+        assertThat(hasDiscount).isTrue();
     }
 
     @Test

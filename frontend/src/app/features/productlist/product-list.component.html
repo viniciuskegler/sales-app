@@ -22,14 +22,21 @@
                                     height="180"
                                     alt="Product Thumbnail"
                                 />
-                                <div class="text-xl">{{ product.price | currency }}</div>
+                                @if (product.discountPercentage) {
+                                    <div class="flex items-baseline gap-2">
+                                        <span class="text-xl font-bold">{{ product.price * (1 - product.discountPercentage / 100) | currency }}</span>
+                                        <span class="text-muted-foreground text-sm line-through">{{ product.price | currency }}</span>
+                                    </div>
+                                } @else {
+                                    <div class="text-xl">{{ product.price | currency }}</div>
+                                }
                                 <div class="font-bold text-sm">{{ product.title }}</div>
                             </a>
                         </div>
                         <div card-footer class="w-full">
-                            <button z-button zFull>
-                                <z-icon [zType]="'shopping-cart'" />
-                                Add to Cart
+                            <button z-button zFull [zDisabled]="cartProductIds().has(product.id)" (click)="addToCart(product)">
+                                <z-icon [zType]="cartProductIds().has(product.id) ? 'check' : 'shopping-cart'" />
+                                {{ cartProductIds().has(product.id) ? 'Added' : 'Add to Cart' }}
                             </button>
                         </div>
                     </z-card>
@@ -83,16 +90,21 @@
                                     height="230"
                                     alt="Product Thumbnail"
                                     />
-                                <div class="text-2xl">
-                                    {{ product.price | currency }}
-                                </div>
+                                @if (product.discountPercentage) {
+                                    <div class="flex items-baseline gap-2">
+                                        <span class="text-2xl font-bold">{{ product.price * (1 - product.discountPercentage / 100) | currency }}</span>
+                                        <span class="text-muted-foreground text-sm line-through">{{ product.price | currency }}</span>
+                                    </div>
+                                } @else {
+                                    <div class="text-2xl">{{ product.price | currency }}</div>
+                                }
                                 <div class="font-bold">{{ product.title }}</div>
                             </a>
                         </div>
                         <div card-footer class="w-full">
-                            <button z-button zFull>
-                                <z-icon [zType]="'shopping-cart'" />
-                                Add to Cart
+                            <button z-button zFull [zDisabled]="cartProductIds().has(product.id)" (click)="addToCart(product)">
+                                <z-icon [zType]="cartProductIds().has(product.id) ? 'check' : 'shopping-cart'" />
+                                {{ cartProductIds().has(product.id) ? 'Added' : 'Add to Cart' }}
                             </button>
                         </div>
                     </z-card>

@@ -8,6 +8,7 @@ export interface ProductDTO {
     description: string;
     price: number;
     thumbnail: string;
+    discountPercentage: number;
 }
 
 export interface ReviewDTO {
