@@ -65,7 +65,6 @@ export class ProductComponent {
     });
 
     readonly product = computed(() => this.productResource.value() ?? null);
-    readonly addedToCart = signal(false);
 
     readonly productId = computed(() => this.product()?.id);
 
@@ -97,13 +96,6 @@ export class ProductComponent {
         },
     );
 
-    constructor() {
-        effect(() => {
-            this.product();
-            this.addedToCart.set(false);
-        });
-    }
-
     readonly images = computed(() => {
         const p = this.product();
         if (!p) {
@@ -124,6 +116,15 @@ export class ProductComponent {
         const rating = this.product()?.rating ?? 0;
         return Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
     });
+
+    readonly addedToCart = signal(false);
+
+    constructor() {
+        effect(() => {
+            this.product();
+            this.addedToCart.set(false);
+        });
+    }
 
     addToCart(): void {
         const p = this.product();

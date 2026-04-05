@@ -44,25 +44,17 @@ import { CartService } from "@features/cart/cart.service";
     ],
 })
 export class ProductListComponent {
+    readonly paginationOptions: string[] = ["30", "50", "100"];
+
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+    private readonly cartService = inject(CartService);
+
     readonly products = input<PagedResponse<ProductDTO> | null>();
     readonly isLoading = input.required<boolean>();
-
     readonly carrouselMode = input<boolean>(false);
     readonly showPagination = input<boolean>(true);
-
-    readonly paginationOptions: string[] = ["30", "50", "100"];
     readonly pagination = model<string>(this.paginationOptions[0]);
-
-    readonly totalProducts = computed(() => {
-        return this.products()?.page?.totalElements;
-    });
-
-    readonly totalPages = computed(() => {
-        const totalProducts = this.products()?.page?.totalElements || 0;
-        const perPage = parseInt(this.pagination(), 10);
-        return Math.ceil(totalProducts / perPage);
-    });
-
     readonly currentPage = model<number>(1);
 
     private _carouselTrack?: ElementRef<HTMLElement>;
@@ -87,22 +79,30 @@ export class ProductListComponent {
         }
     }
 
-    readonly canScroll = signal(false);
-    private resizeObserver?: ResizeObserver;
-    private readonly destroyRef = inject(DestroyRef);
-    private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-    private readonly cartService = inject(CartService);
+    readonly totalProducts = computed(() => {
+        return this.products()?.page?.totalElements;
+    });
+
+    readonly totalPages = computed(() => {
+        const totalProducts = this.products()?.page?.totalElements || 0;
+        const perPage = parseInt(this.pagination(), 10);
+        return Math.ceil(totalProducts / perPage);
+    });
 
     readonly cartProductIds = computed(
         () => new Set(this.cartService.items().map((i) => i.productId)),
     );
 
-    addToCart(product: ProductDTO): void {
-        this.cartService.addProduct(product);
-    }
+    readonly canScroll = signal(false);
+
+    private resizeObserver?: ResizeObserver;
 
     constructor() {
         this.destroyRef.onDestroy(() => this.resizeObserver?.disconnect());
+    }
+
+    addToCart(product: ProductDTO): void {
+        this.cartService.addProduct(product);
     }
 
     scrollCarousel(direction: -1 | 1): void {

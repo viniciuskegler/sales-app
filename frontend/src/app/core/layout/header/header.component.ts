@@ -17,12 +17,12 @@ import { Observable } from "rxjs";
     imports: [AsyncPipe, RouterLink, SearchBarComponent, ZardIconComponent],
 })
 export class HeaderComponent {
-    showHeaderObs: Observable<boolean>;
-
-    readonly layoutService = inject(LayoutService);
+    private readonly layoutService = inject(LayoutService);
     readonly authService = inject(AuthService);
     readonly cartService = inject(CartService);
     private readonly dialogService = inject(ZardDialogService);
+
+    showHeaderObs: Observable<boolean>;
 
     constructor() {
         this.showHeaderObs = this.layoutService.showHeaderObservable;

@@ -22,26 +22,6 @@ export class AuthService {
     readonly currentUser = signal<UserDetails | null>(this.restoreUser());
     readonly isLoggedIn = signal<boolean>(this.getToken() !== null);
 
-    private restoreUser(): UserDetails | null {
-        const token = this.getToken();
-        if (!token) {
-            return null;
-        }
-        try {
-            const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-            const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-            const payload = JSON.parse(new TextDecoder().decode(bytes));
-            return {
-                id: Number(payload["id"]),
-                email: payload["username"],
-                role: payload["role"],
-                fullName: payload["fullName"],
-            };
-        } catch {
-            return null;
-        }
-    }
-
     login(request: LoginRequest) {
         return this.http
             .post<AuthResponse>(`${environment.baseurl}/auth/login`, request)
@@ -68,6 +48,26 @@ export class AuthService {
 
     getToken(): string | null {
         return this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null;
+    }
+
+    private restoreUser(): UserDetails | null {
+        const token = this.getToken();
+        if (!token) {
+            return null;
+        }
+        try {
+            const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+            const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+            const payload = JSON.parse(new TextDecoder().decode(bytes));
+            return {
+                id: Number(payload["id"]),
+                email: payload["username"],
+                role: payload["role"],
+                fullName: payload["fullName"],
+            };
+        } catch {
+            return null;
+        }
     }
 
     private handleAuthResponse(response: AuthResponse): void {

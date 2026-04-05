@@ -76,6 +76,8 @@ Path aliases: `@core/*`, `@features/*`, `@shared/*`, `@layout/*`
 - State via signals (`signal`, `computed`); async data via `rxResource`
 - `inject()` for dependency injection, not constructor params
 - `isPlatformBrowser(PLATFORM_ID)` required before any `localStorage` access (SSR)
+- Class member order: inject → inputs → outputs → view/content queries → computed/linked signals → other properties → constructor → lifecycle hooks → methods
+  - Exception: plain properties that are used as default values for `model`/`input` (e.g. `paginationOptions`) must be declared before those fields
 
 ## Testing
 
