@@ -28,7 +28,9 @@ export class AuthService {
             return null;
         }
         try {
-            const payload = JSON.parse(atob(token.split(".")[1]));
+            const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+            const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+            const payload = JSON.parse(new TextDecoder().decode(bytes));
             return {
                 id: Number(payload["id"]),
                 email: payload["username"],
