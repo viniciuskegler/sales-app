@@ -9,7 +9,7 @@ A marketplace application with a mock payment gateway, built as a full-stack lea
 | Backend | Spring Boot 4, Java 21, PostgreSQL 16 |
 | Frontend | Angular 21, Tailwind CSS 4, SSR |
 | Auth | JWT (JJWT) |
-| Cache | Redis (local) / ElastiCache Serverless (prod) |
+| Cache | Redis (local) / ElastiCache t4g.micro (prod) |
 | Messaging | RabbitMQ (local) / SQS (prod) |
 | Migrations | Liquibase |
 | Infrastructure | AWS CDK (Java) |
@@ -23,8 +23,9 @@ Frontend (Angular SSR)
 Backend (Spring Boot)  ──►  PostgreSQL
         │              ──►  Redis (cache)
         │              ──►  RabbitMQ / SQS (payment events)
+        │              ◄──  WebSocket (order status + notifications)
         ▼
-Lambda (mock payment processor)
+EventBridge (every 2 min) ──► Lambda ──► POST /api/internal/advance-statuses
 ```
 
 ### Backend — domain-driven packages
@@ -35,12 +36,18 @@ com.viniciuskegler.salesapp
 ├── user/        User entity and service
 ├── customer/    Customer profile endpoints
 ├── product/     Products, reviews, categories, caching
-├── order/       Order placement and order history
-├── payment/     Payment event publishing and mock payment simulation consumer
+├── order/       Order placement, history, status advancement
+├── payment/
+│   ├── rabbitmq/    RabbitMQ config, publisher, simulation consumer (dev)
+│   └── sqs/         SQS config, publisher, simulation consumer (prod)
 └── shared/      Exception handling, Redis config, pagination, WebSocket config
 ```
 
 Public endpoints: `POST /api/auth/login`, `POST /api/auth/register-customer`, `GET /api/products/**`
+
+Internal endpoint (secret-header auth, used by Lambda): `POST /api/internal/advance-statuses`
+
+Dev-only endpoint (no auth, inactive in prod): `POST /api/dev/advance-statuses`
 
 All other endpoints require a Bearer JWT.
 
@@ -49,7 +56,7 @@ All other endpoints require a Bearer JWT.
 ```
 src/app
 ├── core/        Layout, services, interceptors, guards
-├── features/    Products, auth, cart, orders, payment
+├── features/    Products, auth, cart, orders, payment, notifications
 └── shared/      Zard UI component library (CVA-based)
 ```
 
@@ -77,7 +84,7 @@ Both scripts abort if any test fails.
 docker compose up -d
 ```
 
-**Backend** — requires a `backend/.env` file with `JWT_SECRET` and `JWT_EXPIRATION`:
+**Backend** — requires a `backend/.env` file with `JWT_SECRET`, `JWT_EXPIRATION`, and `INTERNAL_API_SECRET`:
 ```bash
 cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 # http://localhost:8080
@@ -98,16 +105,24 @@ cd backend && ./mvnw test -Dtest='!*IT'
 cd backend && ./mvnw test
 ```
 
+**Advancing order statuses in dev**
+
+With the backend running, call the dev endpoint directly (no auth required):
+```bash
+curl -X POST http://localhost:8080/api/dev/advance-statuses
+```
+
 ## Infrastructure (AWS)
 
 Infrastructure is defined as code in `infra/` using AWS CDK (Java). The stack provisions:
 
 - **App Runner** — hosts the containerized backend, auto-deploys on new ECR image push
 - **RDS PostgreSQL t4g.micro** — single-AZ, accessible only via VPC connector
-- **ElastiCache Serverless** — Redis, pay-per-use
+- **ElastiCache t4g.micro** — provisioned Redis node (cheaper than Serverless at low traffic)
 - **SQS** — payment event queue (`salesapp-payment-events`)
+- **Lambda + EventBridge** — advances order statuses every 2 minutes (`CONFIRMED→SHIPPED→DELIVERED`)
 - **ECR** — Docker image repository (`salesapp-backend`)
-- **Secrets Manager** — DB password and JWT secret, injected at runtime
+- **Secrets Manager** — DB password, JWT secret, and internal API secret, injected at runtime
 
 No NAT gateway — all resources use public subnets with security group restrictions to keep costs low.
 
@@ -137,7 +152,7 @@ docker push <ECR_URI>:latest
 ```
 
 ```bash
-# Step 2 — deploy App Runner (requires the image to exist in ECR)
+# Step 2 — deploy App Runner and Lambda (requires the image to exist in ECR)
 cd infra
 cdk deploy AppStack
 ```
@@ -156,6 +171,7 @@ Set as App Runner environment variables. Secrets are injected from Secrets Manag
 
 | Variable | Source |
 |---|---|
+| `SPRING_PROFILES_ACTIVE` | `prod` (set by CDK) |
 | `DB_HOST` | RDS endpoint (CDK output) |
 | `DB_NAME` | `salesapp` |
 | `DB_USER` | `salesapp` |
@@ -164,6 +180,7 @@ Set as App Runner environment variables. Secrets are injected from Secrets Manag
 | `JWT_SECRET` | Secrets Manager |
 | `JWT_EXPIRATION` | `36000` |
 | `SQS_QUEUE_URL` | SQS queue URL (CDK output) |
+| `INTERNAL_API_SECRET` | Secrets Manager |
 
 ## Payment flow
 
@@ -180,7 +197,26 @@ PaymentSimulationConsumer processes event (simulates ~4s delay, 80% approval rat
 Order status updated → CONFIRMED or CANCELLED
         │
         ▼
-Result pushed to frontend via WebSocket (/topic/orders/{id})
+OrderStatusPublisher pushes to:
+  ├── /topic/orders/{id}          → payment page updates in real time
+  └── /topic/users/{userId}/notifications → notification bell in header
 ```
 
 Locally, RabbitMQ is used instead of SQS. The active Spring profile (`dev` vs `prod`) determines which implementation is wired.
+
+## Order status advancement
+
+After payment confirmation, orders progress through further statuses via a scheduled job:
+
+```
+EventBridge (every 2 min)
+        │
+        ▼
+Lambda → POST /api/internal/advance-statuses (X-Internal-Secret header)
+        │
+        ▼
+OrderStatusAdvancerService advances: CONFIRMED → SHIPPED → DELIVERED
+        │
+        ▼
+OrderStatusPublisher pushes WebSocket updates to payment page + notification bell
+```
