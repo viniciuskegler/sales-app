@@ -16,6 +16,13 @@
         </button>
     </div>
 
+    @if (sessionExpired()) {
+        <div class="flex items-center gap-2 rounded-md border border-amber-500 bg-amber-500/10 px-3 py-2 text-sm text-amber-600 dark:text-amber-400">
+            <z-icon zType="clock" zSize="sm" />
+            Your session has expired. Please sign in again.
+        </div>
+    }
+
     @if (errorMessage()) {
         <div class="flex items-center gap-2 rounded-md border border-destructive bg-destructive/10 px-3 py-2 text-sm text-destructive">
             <z-icon zType="circle-x" zSize="sm" />

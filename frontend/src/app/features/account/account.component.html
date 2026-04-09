@@ -1,9 +1,20 @@
 <div class="mx-auto w-[90%] max-w-screen-md py-12">
+    @if (!authService.isLoggedIn()) {
+        <div class="flex flex-col items-center gap-4 py-24 text-center">
+            <z-icon zType="shield" class="text-muted-foreground size-12" />
+            <div class="flex flex-col gap-1">
+                <h2 class="text-xl font-semibold">Sign in to view your account</h2>
+                <p class="text-muted-foreground text-sm">Your profile and order history will appear here.</p>
+            </div>
+            <button z-button (click)="openAuthModal()">Sign in</button>
+        </div>
+    } @else {
     <div class="flex flex-col gap-6">
         <div class="flex items-center gap-3">
             <z-icon zType="user" class="size-10" />
             <h1 class="text-2xl font-bold">My Account</h1>
         </div>
+
         @if (authService.currentUser(); as user) {
             <div class="flex flex-col gap-2 rounded-xl border p-6">
                 <div class="flex flex-col gap-1">
@@ -20,11 +31,68 @@
                 </div>
             </div>
         }
+
         <div>
             <button z-button zType="destructive" (click)="authService.logout()">
                 <z-icon zType="log-out" />
                 Logout
             </button>
         </div>
+
+        <div class="flex flex-col gap-4">
+            <h2 class="text-xl font-semibold">Order History</h2>
+
+            @if (ordersResource.isLoading()) {
+                <div class="flex justify-center py-8">
+                    <z-loader />
+                </div>
+            } @else if (ordersResource.error()) {
+                <p class="text-destructive text-sm">Failed to load orders.</p>
+            } @else if (ordersResource.value()?.length === 0) {
+                <div class="flex flex-col items-center gap-2 py-8 text-center">
+                    <z-icon zType="inbox" class="text-muted-foreground size-10" />
+                    <p class="text-muted-foreground">No orders yet.</p>
+                </div>
+            } @else {
+                <div class="flex flex-col gap-4">
+                    @for (order of ordersResource.value(); track order.id) {
+                        <div class="flex flex-col gap-4 rounded-xl border p-6">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex flex-col gap-0.5">
+                                    <span class="text-sm font-medium">Order #{{ order.id }}</span>
+                                    <span class="text-muted-foreground text-xs">
+                                        {{ order.createdAt | date: 'mediumDate' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-semibold">{{ order.total | currency }}</span>
+                                    <z-badge [zType]="statusBadgeType(order.status)" zShape="pill">
+                                        {{ statusLabel(order.status) }}
+                                    </z-badge>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                @for (item of order.items; track item.productId) {
+                                    <div class="flex items-center gap-3">
+                                        <img
+                                            [src]="item.thumbnail"
+                                            [alt]="item.title"
+                                            class="size-12 rounded-lg object-cover" />
+                                        <div class="flex flex-1 flex-col gap-0.5">
+                                            <span class="text-sm font-medium leading-tight">{{ item.title }}</span>
+                                            <span class="text-muted-foreground text-xs">
+                                                {{ item.quantity }} × {{ item.unitPrice | currency }}
+                                            </span>
+                                        </div>
+                                        <span class="text-sm font-semibold">{{ item.totalPrice | currency }}</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
     </div>
+    }
 </div>

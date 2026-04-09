@@ -3,6 +3,7 @@ import { isPlatformBrowser } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { tap } from "rxjs";
+import { toast } from "ngx-sonner";
 import { environment } from "environments/environment";
 import {
     AuthResponse,
@@ -21,6 +22,7 @@ export class AuthService {
 
     readonly currentUser = signal<UserDetails | null>(this.restoreUser());
     readonly isLoggedIn = signal<boolean>(this.getToken() !== null);
+    readonly sessionExpired = signal(false);
 
     login(request: LoginRequest) {
         return this.http
@@ -38,12 +40,26 @@ export class AuthService {
     }
 
     logout(): void {
+        this.clearSession();
+        this.router.navigate(["/"]);
+    }
+
+    expireSession(): void {
+        this.clearSession();
+        this.sessionExpired.set(true);
+        if (this.isBrowser) {
+            toast.warning("Session expired", {
+                description: "Please sign in again to continue.",
+            });
+        }
+    }
+
+    private clearSession(): void {
         if (this.isBrowser) {
             localStorage.removeItem(TOKEN_KEY);
         }
         this.currentUser.set(null);
         this.isLoggedIn.set(false);
-        this.router.navigate(["/"]);
     }
 
     getToken(): string | null {
@@ -76,6 +92,6 @@ export class AuthService {
         }
         this.currentUser.set(response.userDetails);
         this.isLoggedIn.set(true);
-        this.router.navigate(["/"]);
+        this.sessionExpired.set(false);
     }
 }

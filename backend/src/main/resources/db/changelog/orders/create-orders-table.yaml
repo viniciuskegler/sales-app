@@ -1,0 +1,113 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-create-orders-table
+      author: migration
+      changes:
+        - createTable:
+            tableName: orders
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  generationType: always
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: customer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_orders_customer_id
+                    references: customers(id)
+
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: total
+                  type: NUMERIC(10,2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+
+        - sql:
+            sql: >
+              ALTER TABLE orders ADD CONSTRAINT chk_order_status
+              CHECK (status IN ('PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'))
+
+  - changeSet:
+      id: 011-create-order-items-table
+      author: migration
+      changes:
+        - createTable:
+            tableName: order_items
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  generationType: always
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: order_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: unit_price
+                  type: NUMERIC(10,2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: total_price
+                  type: NUMERIC(10,2)
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: order_items
+            baseColumnNames: order_id
+            referencedTableName: orders
+            referencedColumnNames: id
+            constraintName: fk_order_items_order_id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: order_items
+            baseColumnNames: product_id
+            referencedTableName: products
+            referencedColumnNames: id
+            constraintName: fk_order_items_product_id
+            onDelete: RESTRICT

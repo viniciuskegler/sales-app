@@ -33,6 +33,7 @@ export class AuthModalComponent {
     private readonly authService = inject(AuthService);
     private readonly dialogRef = inject(ZardDialogRef);
 
+    readonly sessionExpired = this.authService.sessionExpired;
     readonly activeTab = signal<Tab>("login");
     readonly isLoading = signal(false);
     readonly errorMessage = signal<string | null>(null);

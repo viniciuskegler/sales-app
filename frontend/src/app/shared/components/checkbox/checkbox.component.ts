@@ -7,6 +7,7 @@ import {
   inject,
   input,
   output,
+  signal,
   ViewEncapsulation,
 } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -82,6 +83,9 @@ export class ZardCheckboxComponent implements ControlValueAccessor {
   /* eslint-disable-next-line @typescript-eslint/no-empty-function */
   private onTouched: OnTouchedType = () => {};
 
+  private readonly _cvaDisabled = signal(false);
+  protected readonly isDisabled = computed(() => this.disabled() || this._cvaDisabled());
+
   protected readonly classes = computed(() =>
     mergeClasses(checkboxVariants({ zType: this.zType(), zSize: this.zSize(), zShape: this.zShape() }), this.class()),
   );
@@ -107,8 +111,13 @@ export class ZardCheckboxComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
+  setDisabledState(isDisabled: boolean): void {
+    this._cvaDisabled.set(isDisabled);
+    this.cdr.markForCheck();
+  }
+
   onCheckboxChange(): void {
-    if (this.disabled()) {
+    if (this.isDisabled()) {
       return;
     }
 

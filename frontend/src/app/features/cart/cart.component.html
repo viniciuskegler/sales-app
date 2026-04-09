@@ -86,7 +86,16 @@
                     <span>Total</span>
                     <span>{{ cartService.totalPrice() | currency }}</span>
                 </div>
-                <button z-button zFull>Checkout</button>
+                @if (checkoutError()) {
+                    <p class="text-destructive text-sm">{{ checkoutError() }}</p>
+                }
+                <button z-button zFull [disabled]="isCheckingOut()" (click)="checkout()">
+                    @if (isCheckingOut()) {
+                        Placing order...
+                    } @else {
+                        Checkout
+                    }
+                </button>
                 <button z-button zType="outline" zFull (click)="cartService.clear()">Clear cart</button>
             </div>
         </div>

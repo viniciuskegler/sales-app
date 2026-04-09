@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/products/create-products-table.yaml
   - include:
       file: db/changelog/products/populate-products-table.yaml
+  - include:
+      file: db/changelog/orders/create-orders-table.yaml

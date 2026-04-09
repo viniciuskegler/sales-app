@@ -4,6 +4,7 @@ import { routes } from "./app.routes";
 import {
     provideClientHydration,
     withEventReplay,
+    withNoHttpTransferCache,
 } from "@angular/platform-browser";
 import {
     provideHttpClient,
@@ -13,15 +14,16 @@ import {
 import { provideZard } from "@shared/core/provider/providezard";
 import { loggingInterceptor } from "./core/interceptors/log-interceptor";
 import { authInterceptor } from "./core/interceptors/auth-interceptor";
+import { errorInterceptor } from "./core/interceptors/error-interceptor";
 import { IMAGE_LOADER, ImageLoaderConfig } from "@angular/common";
 
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
-        provideClientHydration(withEventReplay()),
+        provideClientHydration(withEventReplay(), withNoHttpTransferCache()),
         provideHttpClient(
-            withInterceptors([authInterceptor, loggingInterceptor]),
+            withInterceptors([authInterceptor, errorInterceptor, loggingInterceptor]),
             withFetch(),
         ),
         provideZard(),
