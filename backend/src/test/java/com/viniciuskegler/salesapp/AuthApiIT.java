@@ -131,7 +131,7 @@ class AuthApiIT {
         restTestClient.get()
                 .uri("/api/customers/me")
                 .exchange()
-                .expectStatus().isForbidden();
+                .expectStatus().isUnauthorized();
     }
 
     @Test
@@ -155,7 +155,7 @@ class AuthApiIT {
                 .uri("/api/customers/me")
                 .header("Authorization", "Bearer " + tampered)
                 .exchange()
-                .expectStatus().isForbidden();
+                .expectStatus().isUnauthorized();
     }
 
     private BaseAuthResponseDTO<CustomerAuthResponseDTO> registerCustomer(CustomerRegisterRequestDTO request) {

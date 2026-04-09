@@ -3,4 +3,5 @@ export const environment = {
     name: "Sales App",
     apiUrl: "/",
     baseurl: "",
+    wsUrl: "",
 };

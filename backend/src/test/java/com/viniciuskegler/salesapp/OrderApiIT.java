@@ -6,6 +6,7 @@ import com.viniciuskegler.salesapp.customer.dto.CustomerRegisterRequestDTO;
 import com.viniciuskegler.salesapp.order.dto.OrderDTO;
 import com.viniciuskegler.salesapp.order.dto.OrderItemRequestDTO;
 import com.viniciuskegler.salesapp.order.dto.PlaceOrderRequestDTO;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,10 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.context.WebApplicationContext;
+import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -23,6 +26,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -38,14 +42,23 @@ class OrderApiIT {
     static PostgreSQLContainer postgreSQLContainer =
             new PostgreSQLContainer(DockerImageName.parse("postgres:16"));
 
+    @Container
+    @ServiceConnection
+    static RabbitMQContainer rabbitMQContainer =
+            new RabbitMQContainer(DockerImageName.parse("rabbitmq:3-management"));
+
     @Autowired
     private WebApplicationContext context;
+
+    @Autowired
+    private com.viniciuskegler.salesapp.payment.PaymentSimulationConsumer paymentSimulationConsumer;
 
     private RestTestClient restTestClient;
 
     @BeforeEach
     void beforeEach() {
         restTestClient = RestTestClient.bindTo(webAppContextSetup(context).apply(springSecurity()).build()).build();
+        ReflectionTestUtils.setField(paymentSimulationConsumer, "simulationDelayMs", 500L);
     }
 
     @Test
@@ -161,7 +174,7 @@ class OrderApiIT {
     }
 
     @Test
-    void shouldReturn403WhenPlacingOrderWithoutToken() {
+    void shouldReturn401WhenPlacingOrderWithoutToken() {
         PlaceOrderRequestDTO request = new PlaceOrderRequestDTO(List.of(new OrderItemRequestDTO(1L, 1)));
 
         restTestClient.post()
@@ -169,7 +182,7 @@ class OrderApiIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .exchange()
-                .expectStatus().isForbidden();
+                .expectStatus().isUnauthorized();
     }
 
     @Test
@@ -196,6 +209,30 @@ class OrderApiIT {
                 .body(new PlaceOrderRequestDTO(List.of(new OrderItemRequestDTO(999999L, 1))))
                 .exchange()
                 .expectStatus().isNotFound();
+    }
+
+    @Test
+    void shouldTransitionFromPendingAfterPaymentSimulation() {
+        String token = registerAndGetToken();
+        OrderDTO placed = placeOrder(token, new PlaceOrderRequestDTO(List.of(new OrderItemRequestDTO(1L, 1))));
+
+        assertThat(placed.status()).isEqualTo("PENDING");
+
+        Awaitility.await()
+                .atMost(5, TimeUnit.SECONDS)
+                .pollInterval(200, TimeUnit.MILLISECONDS)
+                .untilAsserted(() -> {
+                    OrderDTO current = restTestClient.get()
+                            .uri("/api/orders/" + placed.id())
+                            .header("Authorization", "Bearer " + token)
+                            .exchange()
+                            .expectStatus().isOk()
+                            .expectBody(OrderDTO.class)
+                            .returnResult().getResponseBody();
+
+                    assertThat(current).isNotNull();
+                    assertThat(current.status()).isIn("CONFIRMED", "CANCELLED");
+                });
     }
 
     private OrderDTO placeOrder(String token, PlaceOrderRequestDTO request) {

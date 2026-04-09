@@ -3,4 +3,5 @@ export const environment = {
     name: "Sales App",
     apiUrl: "http://localhost:4200/",
     baseurl: "/api",
+    wsUrl: "ws://localhost:8080/ws",
 };

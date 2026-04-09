@@ -1,0 +1,88 @@
+<div class="mx-auto w-[90%] max-w-screen-sm px-4 py-16">
+    @if (loadError()) {
+        <div class="flex flex-col items-center gap-4 text-center">
+            <z-icon zType="circle-x" class="text-destructive size-14" />
+            <h1 class="text-xl font-semibold">Could not load order</h1>
+            <p class="text-muted-foreground text-sm">Something went wrong while loading your order details.</p>
+            <a z-button routerLink="/account">Go to my account</a>
+        </div>
+    } @else if (!order()) {
+        <div class="flex flex-col items-center gap-4 text-center">
+            <z-loader class="size-10" />
+            <p class="text-muted-foreground">Loading order...</p>
+        </div>
+    } @else if (order()!.status === OrderStatus.PENDING) {
+        <div class="flex flex-col items-center gap-6 text-center">
+            <z-loader class="size-12" />
+            <div class="flex flex-col gap-1">
+                <h1 class="text-xl font-semibold">Processing your payment</h1>
+                <p class="text-muted-foreground text-sm">Please wait while we confirm your order. This usually takes a few seconds.</p>
+            </div>
+            <div class="w-full rounded-xl border p-6 text-left">
+                <p class="text-muted-foreground mb-3 text-xs uppercase tracking-wide">Order summary</p>
+                <div class="flex flex-col gap-3">
+                    @for (item of order()!.items; track item.productId) {
+                        <div class="flex items-center gap-3">
+                            <img [src]="item.thumbnail" [alt]="item.title" class="size-10 rounded-lg object-cover" />
+                            <div class="flex flex-1 flex-col gap-0.5">
+                                <span class="text-sm font-medium leading-tight">{{ item.title }}</span>
+                                <span class="text-muted-foreground text-xs">{{ item.quantity }} × {{ item.unitPrice | currency }}</span>
+                            </div>
+                            <span class="text-sm font-semibold">{{ item.totalPrice | currency }}</span>
+                        </div>
+                    }
+                </div>
+                <hr class="my-4" />
+                <div class="flex justify-between font-semibold">
+                    <span>Total</span>
+                    <span>{{ order()!.total | currency }}</span>
+                </div>
+            </div>
+        </div>
+    } @else if (order()!.status === OrderStatus.CONFIRMED) {
+        <div class="flex flex-col items-center gap-6 text-center">
+            <div class="bg-primary/10 flex size-20 items-center justify-center rounded-full">
+                <z-icon zType="circle-check" class="text-primary size-12" />
+            </div>
+            <div class="flex flex-col gap-1">
+                <h1 class="text-2xl font-bold">Payment confirmed!</h1>
+                <p class="text-muted-foreground text-sm">Order #{{ order()!.id }} has been placed successfully.</p>
+            </div>
+            <div class="w-full rounded-xl border p-6 text-left">
+                <p class="text-muted-foreground mb-3 text-xs uppercase tracking-wide">Order summary</p>
+                <div class="flex flex-col gap-3">
+                    @for (item of order()!.items; track item.productId) {
+                        <div class="flex items-center gap-3">
+                            <img [src]="item.thumbnail" [alt]="item.title" class="size-10 rounded-lg object-cover" />
+                            <div class="flex flex-1 flex-col gap-0.5">
+                                <span class="text-sm font-medium leading-tight">{{ item.title }}</span>
+                                <span class="text-muted-foreground text-xs">{{ item.quantity }} × {{ item.unitPrice | currency }}</span>
+                            </div>
+                            <span class="text-sm font-semibold">{{ item.totalPrice | currency }}</span>
+                        </div>
+                    }
+                </div>
+                <hr class="my-4" />
+                <div class="flex justify-between font-semibold">
+                    <span>Total</span>
+                    <span>{{ order()!.total | currency }}</span>
+                </div>
+            </div>
+            <a z-button routerLink="/account">View my orders</a>
+        </div>
+    } @else {
+        <div class="flex flex-col items-center gap-6 text-center">
+            <div class="bg-destructive/10 flex size-20 items-center justify-center rounded-full">
+                <z-icon zType="circle-x" class="text-destructive size-12" />
+            </div>
+            <div class="flex flex-col gap-1">
+                <h1 class="text-2xl font-bold">Payment failed</h1>
+                <p class="text-muted-foreground text-sm">We could not process your payment for order #{{ order()!.id }}. No charges were made.</p>
+            </div>
+            <div class="flex gap-3">
+                <a z-button zType="outline" routerLink="/cart">Back to cart</a>
+                <a z-button routerLink="/account">My account</a>
+            </div>
+        </div>
+    }
+</div>

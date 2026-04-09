@@ -92,11 +92,11 @@ class CustomerApiIT {
     }
 
     @Test
-    void shouldReturn403WithoutToken() {
+    void shouldReturn401WithoutToken() {
         restTestClient.get()
                 .uri("/api/customers/me")
                 .exchange()
-                .expectStatus().isForbidden();
+                .expectStatus().isUnauthorized();
     }
 
     private BaseAuthResponseDTO<CustomerAuthResponseDTO> registerCustomer(CustomerRegisterRequestDTO request) {

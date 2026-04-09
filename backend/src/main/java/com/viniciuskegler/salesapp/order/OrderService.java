@@ -8,12 +8,15 @@ import com.viniciuskegler.salesapp.order.dto.mapper.OrderMapper;
 import com.viniciuskegler.salesapp.order.model.Order;
 import com.viniciuskegler.salesapp.order.model.OrderItem;
 import com.viniciuskegler.salesapp.order.model.OrderStatus;
+import com.viniciuskegler.salesapp.payment.PaymentEventPublisher;
 import com.viniciuskegler.salesapp.product.ProductRepository;
 import com.viniciuskegler.salesapp.product.model.Product;
 import com.viniciuskegler.salesapp.shared.exception.RecordNotFoundException;
 import com.viniciuskegler.salesapp.user.model.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
@@ -28,15 +31,18 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
+    private final PaymentEventPublisher paymentEventPublisher;
 
     public OrderService(OrderRepository orderRepository,
                         CustomerRepository customerRepository,
                         ProductRepository productRepository,
-                        OrderMapper orderMapper) {
+                        OrderMapper orderMapper,
+                        PaymentEventPublisher paymentEventPublisher) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.orderMapper = orderMapper;
+        this.paymentEventPublisher = paymentEventPublisher;
     }
 
     @Transactional
@@ -71,7 +77,9 @@ public class OrderService {
         order.setTotal(total);
         order.setItems(items);
 
-        return orderMapper.toOrderDTO(orderRepository.save(order));
+        OrderDTO result = orderMapper.toOrderDTO(orderRepository.save(order));
+        schedulePaymentAfterCommit(result.id());
+        return result;
     }
 
     public List<OrderDTO> getMyOrders(User currentUser) {
@@ -81,6 +89,19 @@ public class OrderService {
         return orderRepository.findByCustomerOrderByCreatedAtDesc(customer).stream()
                 .map(orderMapper::toOrderDTO)
                 .collect(Collectors.toList());
+    }
+
+    private void schedulePaymentAfterCommit(Long orderId) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    paymentEventPublisher.publishPaymentRequest(orderId);
+                }
+            });
+        } else {
+            paymentEventPublisher.publishPaymentRequest(orderId);
+        }
     }
 
     public OrderDTO getOrderById(Long id, User currentUser) {

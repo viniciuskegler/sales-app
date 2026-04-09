@@ -28,7 +28,8 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_URLS = {
             "/api/auth/**",
-            "/api/products/**"
+            "/api/products/**",
+            "/ws/**"
     };
 
     private final JwtAuthFilter jwtAuthFilter;

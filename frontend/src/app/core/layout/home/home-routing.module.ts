@@ -37,6 +37,13 @@ const routes: Routes = [
                         (m) => m.CartComponent,
                     ),
             },
+            {
+                path: "payment/:orderId",
+                loadComponent: () =>
+                    import("@features/payment/payment.component").then(
+                        (m) => m.PaymentComponent,
+                    ),
+            },
         ],
     },
 ];

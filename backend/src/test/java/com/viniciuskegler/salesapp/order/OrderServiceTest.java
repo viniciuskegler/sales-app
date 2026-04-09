@@ -2,12 +2,14 @@ package com.viniciuskegler.salesapp.order;
 
 import com.viniciuskegler.salesapp.customer.CustomerRepository;
 import com.viniciuskegler.salesapp.customer.model.Customer;
+import com.viniciuskegler.salesapp.order.dto.OrderDTO;
 import com.viniciuskegler.salesapp.order.dto.OrderItemRequestDTO;
 import com.viniciuskegler.salesapp.order.dto.PlaceOrderRequestDTO;
 import com.viniciuskegler.salesapp.order.dto.mapper.OrderMapper;
 import com.viniciuskegler.salesapp.order.model.Order;
 import com.viniciuskegler.salesapp.order.model.OrderItem;
 import com.viniciuskegler.salesapp.order.model.OrderStatus;
+import com.viniciuskegler.salesapp.payment.PaymentEventPublisher;
 import com.viniciuskegler.salesapp.product.ProductRepository;
 import com.viniciuskegler.salesapp.product.model.Product;
 import com.viniciuskegler.salesapp.shared.exception.RecordNotFoundException;
@@ -43,11 +45,14 @@ class OrderServiceTest {
     @Mock
     private OrderMapper orderMapper;
 
+    @Mock
+    private PaymentEventPublisher paymentEventPublisher;
+
     private OrderService orderService;
 
     @BeforeEach
     void setUp() {
-        orderService = new OrderService(orderRepository, customerRepository, productRepository, orderMapper);
+        orderService = new OrderService(orderRepository, customerRepository, productRepository, orderMapper, paymentEventPublisher);
     }
 
     @Test
@@ -84,7 +89,7 @@ class OrderServiceTest {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
         when(orderRepository.save(captor.capture())).thenAnswer(inv -> inv.getArgument(0));
-        when(orderMapper.toOrderDTO(any())).thenReturn(null);
+        when(orderMapper.toOrderDTO(any())).thenReturn(new OrderDTO(1L, "PENDING", null, null, null));
 
         orderService.placeOrder(request, user);
 
@@ -103,7 +108,7 @@ class OrderServiceTest {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
         when(orderRepository.save(captor.capture())).thenAnswer(inv -> inv.getArgument(0));
-        when(orderMapper.toOrderDTO(any())).thenReturn(null);
+        when(orderMapper.toOrderDTO(any())).thenReturn(new OrderDTO(1L, "PENDING", null, null, null));
 
         orderService.placeOrder(request, user);
 
@@ -130,7 +135,7 @@ class OrderServiceTest {
         when(productRepository.findById(2L)).thenReturn(Optional.of(p2));
         ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
         when(orderRepository.save(captor.capture())).thenAnswer(inv -> inv.getArgument(0));
-        when(orderMapper.toOrderDTO(any())).thenReturn(null);
+        when(orderMapper.toOrderDTO(any())).thenReturn(new OrderDTO(1L, "PENDING", null, null, null));
 
         orderService.placeOrder(request, user);
 

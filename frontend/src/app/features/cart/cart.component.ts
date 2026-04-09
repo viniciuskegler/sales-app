@@ -39,9 +39,9 @@ export class CartComponent {
             })),
         };
         this.orderService.placeOrder(request).subscribe({
-            next: () => {
+            next: (order) => {
                 this.cartService.clear();
-                this.router.navigate(["/account"]);
+                this.router.navigate(["/payment", order.id]);
             },
             error: () => {
                 this.checkoutError.set("Failed to place order. Please try again.");
