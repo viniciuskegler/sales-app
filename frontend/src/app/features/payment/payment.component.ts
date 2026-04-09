@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from "@angular/core";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { CurrencyPipe } from "@angular/common";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, takeUntil, takeWhile } from "rxjs";
 import { OrderService } from "@features/order/order.service";
 import { OrderDTO, OrderStatus } from "@features/order/model/order.model";
 import { PaymentWebSocketService } from "@features/payment/payment-websocket.service";
@@ -33,7 +33,7 @@ export class PaymentComponent implements OnDestroy {
         this.orderService.getOrderById(orderId).subscribe({
             next: (o) => {
                 this.order.set(o);
-                if (o.status === OrderStatus.PENDING) {
+                if (o.status !== OrderStatus.CANCELLED && o.status !== OrderStatus.DELIVERED) {
                     this.subscribeToStatusUpdates(orderId);
                 }
             },
@@ -44,6 +44,7 @@ export class PaymentComponent implements OnDestroy {
     private subscribeToStatusUpdates(orderId: number): void {
         this.wsService.watchOrderStatus(orderId).pipe(
             takeUntil(this.destroy$),
+            takeWhile(status => status !== OrderStatus.CANCELLED && status !== OrderStatus.DELIVERED, true),
         ).subscribe({
             next: (status) => {
                 this.order.update((prev) => prev ? { ...prev, status: status as OrderStatus } : prev);

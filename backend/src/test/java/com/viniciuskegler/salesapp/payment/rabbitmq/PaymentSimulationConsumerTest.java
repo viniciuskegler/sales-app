@@ -1,8 +1,9 @@
-package com.viniciuskegler.salesapp.payment;
+package com.viniciuskegler.salesapp.payment.rabbitmq;
 
 import com.viniciuskegler.salesapp.order.OrderRepository;
 import com.viniciuskegler.salesapp.order.model.Order;
 import com.viniciuskegler.salesapp.order.model.OrderStatus;
+import com.viniciuskegler.salesapp.payment.PaymentEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;

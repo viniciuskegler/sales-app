@@ -1,0 +1,34 @@
+@if (isOpen()) {
+    <div class="fixed inset-0 z-40" (click)="isOpen.set(false)"></div>
+}
+
+<div class="relative pt-2">
+    <button type="button" class="relative cursor-pointer" (click)="toggle()">
+        <z-icon zType="bell" class="size-7" />
+        @if (notificationService.unreadCount() > 0) {
+            <span class="bg-primary text-primary-foreground absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full text-[10px] font-bold">
+                {{ notificationService.unreadCount() }}
+            </span>
+        }
+    </button>
+
+    @if (isOpen()) {
+        <div class="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border bg-white shadow-lg">
+            <p class="border-b px-4 py-3 text-sm font-semibold">Notifications</p>
+
+            @if (notificationService.notifications().length === 0) {
+                <p class="text-muted-foreground px-4 py-6 text-center text-sm">No notifications yet</p>
+            } @else {
+                <ul class="max-h-80 overflow-y-auto">
+                    @for (n of notificationService.notifications(); track n.receivedAt) {
+                        <li class="flex flex-col gap-0.5 border-b px-4 py-3 last:border-0" [class.bg-muted/40]="!n.read">
+                            <span class="text-sm font-medium">Order #{{ n.orderId }}</span>
+                            <span class="text-muted-foreground text-xs">{{ n.message }}</span>
+                            <span class="text-muted-foreground text-[10px]">{{ n.receivedAt | date: 'HH:mm' }}</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+</div>

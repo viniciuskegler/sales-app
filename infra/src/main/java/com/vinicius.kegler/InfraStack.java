@@ -17,7 +17,8 @@ import software.amazon.awscdk.services.ec2.SubnetSelection;
 import software.amazon.awscdk.services.ec2.SubnetType;
 import software.amazon.awscdk.services.ec2.Vpc;
 import software.amazon.awscdk.services.ecr.Repository;
-import software.amazon.awscdk.services.elasticache.CfnServerlessCache;
+import software.amazon.awscdk.services.elasticache.CfnCacheCluster;
+import software.amazon.awscdk.services.elasticache.CfnSubnetGroup;
 import software.amazon.awscdk.services.iam.Role;
 import software.amazon.awscdk.services.iam.ServicePrincipal;
 import software.amazon.awscdk.services.rds.Credentials;
@@ -39,10 +40,11 @@ public class InfraStack extends Stack {
     // Exposed for AppStack
     final Repository ecrRepo;
     final DatabaseInstance db;
-    final CfnServerlessCache cache;
+    final CfnCacheCluster cache;
     final Queue paymentQueue;
     final Secret dbPasswordSecret;
     final Secret jwtSecret;
+    final Secret internalApiSecret;
     final Role instanceRole;
     final Role ecrAccessRole;
     final CfnVpcConnector vpcConnector;
@@ -97,6 +99,14 @@ public class InfraStack extends Stack {
                         .build())
                 .build();
 
+        internalApiSecret = Secret.Builder.create(this, "InternalApiSecret")
+                .secretName("salesapp/internal-api-secret")
+                .generateSecretString(SecretStringGenerator.builder()
+                        .excludePunctuation(true)
+                        .passwordLength(32)
+                        .build())
+                .build();
+
         db = DatabaseInstance.Builder.create(this, "Database")
                 .engine(DatabaseInstanceEngine.postgres(PostgresInstanceEngineProps.builder()
                         .version(PostgresEngineVersion.VER_16)
@@ -119,11 +129,17 @@ public class InfraStack extends Stack {
                 .map(ISubnet::getSubnetId)
                 .collect(Collectors.toList());
 
-        cache = CfnServerlessCache.Builder.create(this, "Cache")
-                .engine("redis")
-                .serverlessCacheName("salesapp-cache")
+        CfnSubnetGroup cacheSubnetGroup = CfnSubnetGroup.Builder.create(this, "CacheSubnetGroup")
+                .description("Subnet group for salesapp cache")
                 .subnetIds(subnetIds)
-                .securityGroupIds(List.of(cacheSg.getSecurityGroupId()))
+                .build();
+
+        cache = CfnCacheCluster.Builder.create(this, "Cache")
+                .engine("redis")
+                .cacheNodeType("cache.t4g.micro")
+                .numCacheNodes(1)
+                .cacheSubnetGroupName(cacheSubnetGroup.getRef())
+                .vpcSecurityGroupIds(List.of(cacheSg.getSecurityGroupId()))
                 .build();
 
         paymentQueue = Queue.Builder.create(this, "PaymentQueue")
@@ -142,6 +158,8 @@ public class InfraStack extends Stack {
                 .build();
         dbPasswordSecret.grantRead(instanceRole);
         jwtSecret.grantRead(instanceRole);
+        internalApiSecret.grantRead(instanceRole);
+        paymentQueue.grantConsumeMessages(instanceRole);
         paymentQueue.grantSendMessages(instanceRole);
 
         ecrAccessRole = Role.Builder.create(this, "AppRunnerEcrRole")

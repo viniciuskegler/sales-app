@@ -29,6 +29,8 @@ public class SecurityConfig {
     private static final String[] PUBLIC_URLS = {
             "/api/auth/**",
             "/api/products/**",
+            "/api/internal/**",
+            "/api/dev/**",
             "/ws/**"
     };
 

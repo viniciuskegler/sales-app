@@ -18,4 +18,8 @@ export class OrderService {
     getOrderById(id: number) {
         return this.http.get<OrderDTO>(`${environment.baseurl}/orders/${id}`);
     }
+
+    advanceStatuses() {
+        return this.http.post<void>(`${environment.baseurl}/dev/advance-statuses`, {});
+    }
 }

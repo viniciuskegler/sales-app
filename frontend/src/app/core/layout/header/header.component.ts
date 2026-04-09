@@ -8,13 +8,14 @@ import { CartService } from "@features/cart/cart.service";
 import { SearchBarComponent } from "@features/searchbar/search-bar.component";
 import { ZardDialogService } from "@shared/components/dialog/dialog.service";
 import { ZardIconComponent } from "@shared/components/icon/icon.component";
+import { NotificationBellComponent } from "@features/notifications/notification-bell/notification-bell.component";
 import { Observable } from "rxjs";
 
 @Component({
     standalone: true,
     selector: "app-header",
     templateUrl: "header.component.html",
-    imports: [AsyncPipe, RouterLink, SearchBarComponent, ZardIconComponent],
+    imports: [AsyncPipe, RouterLink, SearchBarComponent, ZardIconComponent, NotificationBellComponent],
 })
 export class HeaderComponent {
     private readonly layoutService = inject(LayoutService);

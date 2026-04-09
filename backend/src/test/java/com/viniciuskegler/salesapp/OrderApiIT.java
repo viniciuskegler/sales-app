@@ -6,6 +6,7 @@ import com.viniciuskegler.salesapp.customer.dto.CustomerRegisterRequestDTO;
 import com.viniciuskegler.salesapp.order.dto.OrderDTO;
 import com.viniciuskegler.salesapp.order.dto.OrderItemRequestDTO;
 import com.viniciuskegler.salesapp.order.dto.PlaceOrderRequestDTO;
+import com.viniciuskegler.salesapp.payment.rabbitmq.PaymentSimulationConsumer;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +52,7 @@ class OrderApiIT {
     private WebApplicationContext context;
 
     @Autowired
-    private com.viniciuskegler.salesapp.payment.PaymentSimulationConsumer paymentSimulationConsumer;
+    private PaymentSimulationConsumer paymentSimulationConsumer;
 
     private RestTestClient restTestClient;
 
