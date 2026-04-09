@@ -54,24 +54,13 @@
                     <p class="text-muted-foreground">No orders yet.</p>
                 </div>
             } @else {
-                <div class="flex flex-col gap-4">
+                <z-accordion zType="multiple" class="rounded-xl border px-6">
                     @for (order of ordersResource.value(); track order.id) {
-                        <div class="flex flex-col gap-4 rounded-xl border p-6">
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="flex flex-col gap-0.5">
-                                    <span class="text-sm font-medium">Order #{{ order.id }}</span>
-                                    <span class="text-muted-foreground text-xs">
-                                        {{ order.createdAt | date: 'mediumDate' }}
-                                    </span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="font-semibold">{{ order.total | currency }}</span>
-                                    <z-badge [zType]="statusBadgeType(order.status)" zShape="pill">
-                                        {{ statusLabel(order.status) }}
-                                    </z-badge>
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-2">
+                        <z-accordion-item
+                            [zValue]="order.id.toString()"
+                            [zTitle]="'Order #' + order.id + ' · ' + (order.total | currency) + ' · ' + statusLabel(order.status)">
+                            <div class="flex flex-col gap-3">
+                                <span class="text-muted-foreground text-xs">{{ order.createdAt | date: 'mediumDate' }}</span>
                                 @for (item of order.items; track item.productId) {
                                     <div class="flex items-center gap-3">
                                         <img
@@ -88,9 +77,9 @@
                                     </div>
                                 }
                             </div>
-                        </div>
+                        </z-accordion-item>
                     }
-                </div>
+                </z-accordion>
             }
         </div>
     </div>
