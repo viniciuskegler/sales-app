@@ -35,7 +35,9 @@ com.viniciuskegler.salesapp
 ├── user/        User entity and service
 ├── customer/    Customer profile endpoints
 ├── product/     Products, reviews, categories, caching
-└── shared/      Exception handling, Redis config, pagination
+├── order/       Order placement and order history
+├── payment/     Payment event publishing and mock payment simulation consumer
+└── shared/      Exception handling, Redis config, pagination, WebSocket config
 ```
 
 Public endpoints: `POST /api/auth/login`, `POST /api/auth/register-customer`, `GET /api/products/**`
@@ -47,7 +49,7 @@ All other endpoints require a Bearer JWT.
 ```
 src/app
 ├── core/        Layout, services, interceptors, guards
-├── features/    Products, auth, cart, filters, search
+├── features/    Products, auth, cart, orders, payment
 └── shared/      Zard UI component library (CVA-based)
 ```
 
@@ -163,19 +165,22 @@ Set as App Runner environment variables. Secrets are injected from Secrets Manag
 | `JWT_EXPIRATION` | `36000` |
 | `SQS_QUEUE_URL` | SQS queue URL (CDK output) |
 
-## Payment flow (planned)
+## Payment flow
 
 ```
 POST /api/orders
         │
         ▼
-Backend publishes OrderCreatedEvent → SQS
+Backend publishes PaymentEvent → RabbitMQ (local) / SQS (prod)
         │
         ▼
-Lambda polls SQS, simulates processing, calls back POST /api/orders/{id}/payment-result
+PaymentSimulationConsumer processes event (simulates ~4s delay, 80% approval rate)
         │
         ▼
-Backend updates order status
+Order status updated → CONFIRMED or CANCELLED
+        │
+        ▼
+Result pushed to frontend via WebSocket (/topic/orders/{id})
 ```
 
 Locally, RabbitMQ is used instead of SQS. The active Spring profile (`dev` vs `prod`) determines which implementation is wired.
