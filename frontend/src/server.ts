@@ -2,6 +2,7 @@ import { APP_BASE_HREF } from "@angular/common";
 import { CommonEngine, isMainModule } from "@angular/ssr/node";
 import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import { Socket } from "node:net";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import bootstrap from "./main.server";
@@ -71,8 +72,7 @@ if (isMainModule(import.meta.url)) {
     // Proxy WebSocket upgrade requests (/ws) to the backend
     server.on("upgrade", (req, socket, head) => {
         if (req.url?.startsWith("/ws")) {
-            // @ts-expect-error upgrade exists at runtime
-            backendProxy.upgrade(req, socket, head);
+            backendProxy.upgrade(req, socket as Socket, head);
         }
     });
 }
