@@ -1,6 +1,7 @@
 package com.viniciuskegler.salesapp.payment.rabbitmq;
 
 import com.viniciuskegler.salesapp.order.OrderRepository;
+import com.viniciuskegler.salesapp.order.OrderStatusPublisher;
 import com.viniciuskegler.salesapp.order.model.Order;
 import com.viniciuskegler.salesapp.order.model.OrderStatus;
 import com.viniciuskegler.salesapp.payment.PaymentEvent;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
@@ -28,13 +28,13 @@ class PaymentSimulationConsumerTest {
     private OrderRepository orderRepository;
 
     @Mock
-    private SimpMessagingTemplate messagingTemplate;
+    private OrderStatusPublisher statusPublisher;
 
     private PaymentSimulationConsumer consumer;
 
     @BeforeEach
     void setUp() {
-        consumer = new PaymentSimulationConsumer(orderRepository, messagingTemplate);
+        consumer = new PaymentSimulationConsumer(orderRepository, statusPublisher);
         ReflectionTestUtils.setField(consumer, "simulationDelayMs", 0L);
     }
 
