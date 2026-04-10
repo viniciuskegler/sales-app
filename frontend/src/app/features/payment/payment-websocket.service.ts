@@ -14,7 +14,8 @@ export class PaymentWebSocketService {
         }
 
         return new Observable<string>((observer) => {
-            const brokerURL = environment.wsUrl;
+            const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            const brokerURL = environment.wsUrl || `${protocol}//${window.location.host}/ws`;
             const client = new Client({
                 brokerURL,
                 onConnect: () => {

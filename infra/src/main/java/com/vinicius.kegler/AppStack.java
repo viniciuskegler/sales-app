@@ -97,9 +97,34 @@ public class AppStack extends Stack {
                 .targets(List.of(new LambdaFunction(advancerLambda)))
                 .build();
 
-        new CfnOutput(this, "AppUrl", CfnOutputProps.builder()
+        CfnService frontendService = CfnService.Builder.create(this, "FrontendService")
+                .serviceName("salesapp-frontend")
+                .sourceConfiguration(CfnService.SourceConfigurationProperty.builder()
+                        .authenticationConfiguration(CfnService.AuthenticationConfigurationProperty.builder()
+                                .accessRoleArn(infra.ecrAccessRole.getRoleArn())
+                                .build())
+                        .autoDeploymentsEnabled(true)
+                        .imageRepository(CfnService.ImageRepositoryProperty.builder()
+                                .imageIdentifier(infra.frontendEcrRepo.getRepositoryUri() + ":latest")
+                                .imageRepositoryType("ECR")
+                                .imageConfiguration(CfnService.ImageConfigurationProperty.builder()
+                                        .port("4000")
+                                        .runtimeEnvironmentVariables(List.of(
+                                                kvp("BACKEND_URL", backendUrl)
+                                        ))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        new CfnOutput(this, "BackendUrl", CfnOutputProps.builder()
                 .value(backendUrl)
                 .description("Backend URL")
+                .build());
+
+        new CfnOutput(this, "FrontendUrl", CfnOutputProps.builder()
+                .value("https://" + frontendService.getAttrServiceUrl())
+                .description("Frontend URL")
                 .build());
     }
 

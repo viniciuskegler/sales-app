@@ -39,6 +39,7 @@ public class InfraStack extends Stack {
 
     // Exposed for AppStack
     final Repository ecrRepo;
+    final Repository frontendEcrRepo;
     final DatabaseInstance db;
     final CfnCacheCluster cache;
     final Queue paymentQueue;
@@ -153,6 +154,12 @@ public class InfraStack extends Stack {
                 .emptyOnDelete(true)
                 .build();
 
+        frontendEcrRepo = Repository.Builder.create(this, "FrontendRepo")
+                .repositoryName("salesapp-frontend")
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .emptyOnDelete(true)
+                .build();
+
         instanceRole = Role.Builder.create(this, "AppRunnerInstanceRole")
                 .assumedBy(new ServicePrincipal("tasks.apprunner.amazonaws.com"))
                 .build();
@@ -166,6 +173,7 @@ public class InfraStack extends Stack {
                 .assumedBy(new ServicePrincipal("build.apprunner.amazonaws.com"))
                 .build();
         ecrRepo.grantPull(ecrAccessRole);
+        frontendEcrRepo.grantPull(ecrAccessRole);
 
         vpcConnector = CfnVpcConnector.Builder.create(this, "VpcConnector")
                 .vpcConnectorName("salesapp-connector")
@@ -173,9 +181,14 @@ public class InfraStack extends Stack {
                 .securityGroups(List.of(appRunnerSg.getSecurityGroupId()))
                 .build();
 
-        new CfnOutput(this, "EcrUri", CfnOutputProps.builder()
+        new CfnOutput(this, "BackendEcrUri", CfnOutputProps.builder()
                 .value(ecrRepo.getRepositoryUri())
-                .description("Push Docker images here, then run: cdk deploy AppStack")
+                .description("Push backend Docker image here, then run: cdk deploy AppStack")
+                .build());
+
+        new CfnOutput(this, "FrontendEcrUri", CfnOutputProps.builder()
+                .value(frontendEcrRepo.getRepositoryUri())
+                .description("Push frontend Docker image here, then run: cdk deploy AppStack")
                 .build());
 
         new CfnOutput(this, "PaymentQueueUrl", CfnOutputProps.builder()

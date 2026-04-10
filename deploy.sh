@@ -1,6 +1,6 @@
 #!/bin/bash
-# Full deploy: provisions all AWS infrastructure, builds and pushes the Docker
-# image to ECR, then deploys the App Runner service.
+# Full deploy: provisions all AWS infrastructure, builds and pushes Docker
+# images to ECR, then deploys both App Runner services.
 # Requires AWS CLI and Docker to be running.
 set -e
 trap 'echo; read -r -p "Script failed. Press Enter to close..."' ERR

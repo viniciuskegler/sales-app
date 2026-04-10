@@ -17,14 +17,18 @@ A marketplace application with a mock payment gateway, built as a full-stack lea
 ## Architecture
 
 ```
-Frontend (Angular SSR)
-        │
-        ▼
-Backend (Spring Boot)  ──►  PostgreSQL
-        │              ──►  Redis (cache)
-        │              ──►  RabbitMQ / SQS (payment events)
-        │              ◄──  WebSocket (order status + notifications)
-        ▼
+Browser
+   │
+   ▼
+Frontend App Runner (Angular SSR / Express)
+   │  /api/**  →  proxy
+   │  /ws      →  proxy (WebSocket upgrade)
+   ▼
+Backend App Runner (Spring Boot)  ──►  PostgreSQL (RDS)
+                                  ──►  Redis (ElastiCache)
+                                  ──►  RabbitMQ / SQS (payment events)
+                                  ◄──  WebSocket (order status + notifications)
+                                  ▲
 EventBridge (every 2 min) ──► Lambda ──► POST /api/internal/advance-statuses
 ```
 
@@ -116,12 +120,13 @@ curl -X POST http://localhost:8080/api/dev/advance-statuses
 
 Infrastructure is defined as code in `infra/` using AWS CDK (Java). The stack provisions:
 
-- **App Runner** — hosts the containerized backend, auto-deploys on new ECR image push
+- **App Runner (backend)** — hosts the Spring Boot container, VPC connector for DB/Redis access, auto-deploys on ECR push
+- **App Runner (frontend)** — hosts the Angular SSR/Express container, proxies `/api/**` and `/ws` to the backend
 - **RDS PostgreSQL t4g.micro** — single-AZ, accessible only via VPC connector
 - **ElastiCache t4g.micro** — provisioned Redis node (cheaper than Serverless at low traffic)
 - **SQS** — payment event queue (`salesapp-payment-events`)
 - **Lambda + EventBridge** — advances order statuses every 2 minutes (`CONFIRMED→SHIPPED→DELIVERED`)
-- **ECR** — Docker image repository (`salesapp-backend`)
+- **ECR** — two image repositories: `salesapp-backend` and `salesapp-frontend`
 - **Secrets Manager** — DB password, JWT secret, and internal API secret, injected at runtime
 
 No NAT gateway — all resources use public subnets with security group restrictions to keep costs low.
@@ -140,34 +145,47 @@ cdk bootstrap
 cdk deploy InfraStack
 ```
 
-Once `InfraStack` completes, it outputs the ECR URI. Build and push the backend image:
-
-```bash
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <ECR_URI>
-
-cd backend
-docker build -t salesapp-backend .
-docker tag salesapp-backend:latest <ECR_URI>:latest
-docker push <ECR_URI>:latest
-```
-
-```bash
-# Step 2 — deploy App Runner and Lambda (requires the image to exist in ECR)
-cd infra
-cdk deploy AppStack
-```
-
-Subsequent backend deploys only require pushing a new image:
+Once `InfraStack` completes, it outputs the ECR URIs. Build and push both images:
 
 ```bash
 ./publish.sh
 ```
 
-This script builds the image, authenticates to ECR, and pushes — App Runner redeploys automatically.
+```bash
+# Step 2 — deploy App Runner services and Lambda (requires images to exist in ECR)
+cd infra
+cdk deploy AppStack
+```
+
+Subsequent deploys only require pushing new images — `publish.sh` handles both:
+
+```bash
+./publish.sh
+```
+
+App Runner detects new images and redeploys automatically.
+
+### CI/CD (GitHub Actions)
+
+A workflow at `.github/workflows/ci.yml` automates testing and deployment:
+
+- **On every push/PR to `main`** — runs backend unit tests and frontend tests in parallel
+- **On push to `main` only** — if tests pass, builds and pushes both Docker images to ECR
+
+Required GitHub repository secrets:
+
+| Secret | Description |
+|---|---|
+| `AWS_ACCESS_KEY_ID` | IAM user access key with ECR push permissions |
+| `AWS_SECRET_ACCESS_KEY` | IAM user secret key |
+
+Add them under **Settings → Secrets and variables → Actions**.
 
 ## Environment variables (production)
 
 Set as App Runner environment variables. Secrets are injected from Secrets Manager.
+
+**Backend**
 
 | Variable | Source |
 |---|---|
@@ -181,6 +199,13 @@ Set as App Runner environment variables. Secrets are injected from Secrets Manag
 | `JWT_EXPIRATION` | `36000` |
 | `SQS_QUEUE_URL` | SQS queue URL (CDK output) |
 | `INTERNAL_API_SECRET` | Secrets Manager |
+
+**Frontend**
+
+| Variable | Source |
+|---|---|
+| `BACKEND_URL` | Backend App Runner URL (CDK output) |
+| `PORT` | `4000` (default, set by App Runner config) |
 
 ## Payment flow
 

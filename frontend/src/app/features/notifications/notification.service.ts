@@ -32,12 +32,15 @@ export class NotificationService {
     }
 
     private connect(userId: number): void {
-        if (!this.isBrowser || !environment.wsUrl) {
+        if (!this.isBrowser) {
             return;
         }
 
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const brokerURL = environment.wsUrl || `${protocol}//${window.location.host}/ws`;
+
         this.client = new Client({
-            brokerURL: environment.wsUrl,
+            brokerURL,
             onConnect: () => {
                 this.client!.subscribe(`/topic/users/${userId}/notifications`, (message) => {
                     const { orderId, status, message: text } = JSON.parse(message.body);
