@@ -19,14 +19,14 @@ const commonEngine = new CommonEngine();
 const backendProxy = createProxyMiddleware({
     target: backendUrl,
     changeOrigin: true,
+    pathFilter: ["/api", "/ws"],
 });
 
 /**
  * Proxy /api/** and /ws to the backend service.
  * Must be registered before the static files handler.
  */
-app.use("/api", backendProxy);
-app.use("/ws", backendProxy);
+app.use(backendProxy);
 
 /**
  * Serve static files from /browser
@@ -38,6 +38,10 @@ app.get(
         index: "index.html",
     }),
 );
+
+const backendWsUrl = backendUrl
+    .replace(/^https:\/\//, "wss://")
+    .replace(/^http:\/\//, "ws://") + "/ws";
 
 /**
  * Handle all other requests by rendering the Angular application.
@@ -53,7 +57,14 @@ app.get("**", (req, res, next) => {
             publicPath: browserDistFolder,
             providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
         })
-        .then((html) => res.send(html))
+        .then((html) =>
+            res.send(
+                html.replace(
+                    "</head>",
+                    `<script>window.__WS_URL__=${JSON.stringify(backendWsUrl)};</script></head>`,
+                ),
+            ),
+        )
         .catch((err) => next(err));
 });
 

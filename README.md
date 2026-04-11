@@ -22,15 +22,15 @@ Browser
    ▼
 Frontend App Runner (Angular SSR / Express)
    │  /api/**  →  proxy
-   │  /ws      →  proxy (WebSocket upgrade)
    ▼
 Backend App Runner (Spring Boot)  ──►  PostgreSQL (RDS)
                                   ──►  Redis (ElastiCache)
-                                  ──►  RabbitMQ / SQS (payment events)
-                                  ◄──  WebSocket (order status + notifications)
+                                  ──►  SQS (payment events)
                                   ▲
 EventBridge (every 2 min) ──► Lambda ──► POST /api/internal/advance-statuses
 ```
+
+> **WebSocket note**: App Runner does not support WebSocket connections. In production, the payment page polls the order status every 3 seconds instead of using WebSocket push. The notification bell is visible but does not receive real-time updates. Supporting WebSocket on App Runner would require a NAT gateway, an NLB, and a separate proxy container — not implemented.
 
 ### Backend — domain-driven packages
 
@@ -223,8 +223,8 @@ Order status updated → CONFIRMED or CANCELLED
         │
         ▼
 OrderStatusPublisher pushes to:
-  ├── /topic/orders/{id}          → payment page updates in real time
-  └── /topic/users/{userId}/notifications → notification bell in header
+  ├── /topic/orders/{id}          → payment page (WebSocket in dev, polling in prod)
+  └── /topic/users/{userId}/notifications → notification bell (WebSocket dev only)
 ```
 
 Locally, RabbitMQ is used instead of SQS. The active Spring profile (`dev` vs `prod`) determines which implementation is wired.
@@ -243,5 +243,5 @@ Lambda → POST /api/internal/advance-statuses (X-Internal-Secret header)
 OrderStatusAdvancerService advances: CONFIRMED → SHIPPED → DELIVERED
         │
         ▼
-OrderStatusPublisher pushes WebSocket updates to payment page + notification bell
+OrderStatusPublisher pushes updates (WebSocket in dev, polling picks them up in prod)
 ```

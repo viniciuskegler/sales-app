@@ -63,7 +63,24 @@ export class AuthService {
     }
 
     getToken(): string | null {
-        return this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null;
+        if (!this.isBrowser) {
+            return null;
+        }
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) {
+            return null;
+        }
+        try {
+            const b64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+            const { exp } = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(b64), c => c.charCodeAt(0))));
+            if (exp * 1000 < Date.now()) {
+                localStorage.removeItem(TOKEN_KEY);
+                return null;
+            }
+        } catch {
+            // unparseable token — let the backend reject it
+        }
+        return token;
     }
 
     private restoreUser(): UserDetails | null {

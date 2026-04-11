@@ -10,6 +10,8 @@ import software.amazon.awscdk.services.ec2.ISubnet;
 import software.amazon.awscdk.services.ec2.InstanceClass;
 import software.amazon.awscdk.services.ec2.InstanceSize;
 import software.amazon.awscdk.services.ec2.InstanceType;
+import software.amazon.awscdk.services.ec2.InterfaceVpcEndpointAwsService;
+import software.amazon.awscdk.services.ec2.InterfaceVpcEndpointOptions;
 import software.amazon.awscdk.services.ec2.Port;
 import software.amazon.awscdk.services.ec2.SecurityGroup;
 import software.amazon.awscdk.services.ec2.SubnetConfiguration;
@@ -84,6 +86,18 @@ public class InfraStack extends Stack {
                 .vpc(vpc)
                 .build();
         cacheSg.addIngressRule(appRunnerSg, Port.tcp(6379));
+
+        SecurityGroup sqsEndpointSg = SecurityGroup.Builder.create(this, "SqsEndpointSg")
+                .vpc(vpc)
+                .description("SQS VPC interface endpoint")
+                .build();
+        sqsEndpointSg.addIngressRule(appRunnerSg, Port.tcp(443));
+
+        vpc.addInterfaceEndpoint("SqsEndpoint", InterfaceVpcEndpointOptions.builder()
+                .service(InterfaceVpcEndpointAwsService.SQS)
+                .subnets(SubnetSelection.builder().subnetType(SubnetType.PUBLIC).build())
+                .securityGroups(List.of(sqsEndpointSg))
+                .build());
 
         dbPasswordSecret = Secret.Builder.create(this, "DbPasswordSecret")
                 .secretName("salesapp/db-password")
@@ -176,7 +190,6 @@ public class InfraStack extends Stack {
         frontendEcrRepo.grantPull(ecrAccessRole);
 
         vpcConnector = CfnVpcConnector.Builder.create(this, "VpcConnector")
-                .vpcConnectorName("salesapp-connector")
                 .subnets(subnetIds)
                 .securityGroups(List.of(appRunnerSg.getSecurityGroupId()))
                 .build();

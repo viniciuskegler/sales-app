@@ -48,7 +48,9 @@ One package per domain under `com.viniciuskegler.salesapp`:
 - `user/` — User entity, UserService (login + register)
 - `customer/` — Customer entity and endpoints
 - `product/` — Product + Review entities and endpoints
-- `shared/` — Cross-cutting concerns (exception handler, pagination)
+- `order/` — Order placement, history, status advancement, WebSocket publisher
+- `payment/` — PaymentEventPublisher interface; `rabbitmq/` (dev profile), `sqs/` (prod profile)
+- `shared/` — Cross-cutting concerns (exception handler, pagination, WebSocket config, rate limiter)
 
 Public endpoints: `/api/auth/**`, `/api/products/**`. Everything else requires a Bearer JWT.
 
@@ -91,3 +93,13 @@ Path aliases: `@core/*`, `@features/*`, `@shared/*`, `@layout/*`
 
 ### Frontend
 - Karma + Jasmine; run with `npm test`
+
+## WebSocket / real-time updates
+
+WebSocket (STOMP over SockJS) is used in dev for real-time payment status and notifications. **AWS App Runner does not support WebSocket connections** — enabling it would require a NAT gateway, an NLB, and a separate WebSocket proxy container, which is significant infrastructure overhead.
+
+In production (`environment.wsEnabled = false`):
+- `PaymentComponent` polls `GET /api/orders/{id}` every 3 seconds until the order reaches a terminal status
+- `NotificationService` skips the WebSocket connection entirely — the notification bell is present but won't receive real-time updates
+
+The `environment.wsEnabled` flag in `src/environments/environment*.ts` controls this. Set to `true` in dev, `false` in prod.

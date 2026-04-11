@@ -3,6 +3,7 @@ package com.vinicius.kegler;
 import software.amazon.awscdk.CfnOutput;
 import software.amazon.awscdk.CfnOutputProps;
 import software.amazon.awscdk.Duration;
+import software.amazon.awscdk.RemovalPolicy;
 import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.services.apprunner.CfnService;
@@ -12,6 +13,8 @@ import software.amazon.awscdk.services.events.targets.LambdaFunction;
 import software.amazon.awscdk.services.lambda.Code;
 import software.amazon.awscdk.services.lambda.Function;
 import software.amazon.awscdk.services.lambda.Runtime;
+import software.amazon.awscdk.services.logs.LogGroup;
+import software.amazon.awscdk.services.logs.RetentionDays;
 import software.constructs.Construct;
 
 import java.util.List;
@@ -44,7 +47,7 @@ public class AppStack extends Stack {
                                                 kvp("DB_NAME", "salesapp"),
                                                 kvp("DB_USER", "salesapp"),
                                                 kvp("REDIS_HOST", infra.cache.getAttrRedisEndpointAddress()),
-                                                kvp("JWT_EXPIRATION", "36000"),
+                                                kvp("JWT_EXPIRATION", "86400000"),
                                                 kvp("SQS_QUEUE_URL", infra.paymentQueue.getQueueUrl())
                                         ))
                                         .runtimeEnvironmentSecrets(List.of(
@@ -68,18 +71,29 @@ public class AppStack extends Stack {
 
         String backendUrl = "https://" + service.getAttrServiceUrl();
 
+        LogGroup advancerLogGroup = LogGroup.Builder.create(this, "OrderStatusAdvancerLogGroup")
+                .logGroupName("/aws/lambda/salesapp-order-status-advancer")
+                .retention(RetentionDays.ONE_WEEK)
+                .removalPolicy(RemovalPolicy.DESTROY)
+                .build();
+
         Function advancerLambda = Function.Builder.create(this, "OrderStatusAdvancer")
                 .functionName("salesapp-order-status-advancer")
                 .runtime(Runtime.NODEJS_22_X)
                 .handler("index.handler")
                 .timeout(Duration.seconds(10))
                 .code(Code.fromInline("""
+                        const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
+                        const sm = new SecretsManagerClient({});
                         exports.handler = async () => {
+                            const { SecretString } = await sm.send(
+                                new GetSecretValueCommand({ SecretId: process.env.INTERNAL_API_SECRET_ARN })
+                            );
                             const res = await fetch(
                                 process.env.BACKEND_URL + '/api/internal/advance-statuses',
                                 {
                                     method: 'POST',
-                                    headers: { 'X-Internal-Secret': process.env.INTERNAL_API_SECRET }
+                                    headers: { 'X-Internal-Secret': SecretString }
                                 }
                             );
                             if (!res.ok) throw new Error('advance-statuses failed: ' + res.status);
@@ -88,9 +102,12 @@ public class AppStack extends Stack {
                         """))
                 .environment(Map.of(
                         "BACKEND_URL", backendUrl,
-                        "INTERNAL_API_SECRET", infra.internalApiSecret.secretValue().unsafeUnwrap()
+                        "INTERNAL_API_SECRET_ARN", infra.internalApiSecret.getSecretArn()
                 ))
+                .logGroup(advancerLogGroup)
                 .build();
+
+        infra.internalApiSecret.grantRead(advancerLambda);
 
         Rule.Builder.create(this, "OrderStatusAdvancerRule")
                 .schedule(Schedule.rate(Duration.minutes(2)))

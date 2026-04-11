@@ -5,6 +5,7 @@ import { AuthService } from "@features/auth/auth.service";
 import { OrderNotification } from "./notification.model";
 import { environment } from "environments/environment";
 
+
 @Injectable({ providedIn: "root" })
 export class NotificationService {
     private readonly authService = inject(AuthService);
@@ -32,15 +33,15 @@ export class NotificationService {
     }
 
     private connect(userId: number): void {
-        if (!this.isBrowser) {
+        if (!this.isBrowser || !environment.wsEnabled) {
             return;
         }
 
-        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const brokerURL = environment.wsUrl || `${protocol}//${window.location.host}/ws`;
+        const brokerURL = environment.wsUrl || (window as any).__WS_URL__ || "ws://localhost:8080/ws";
 
         this.client = new Client({
             brokerURL,
+            reconnectDelay: 0,
             onConnect: () => {
                 this.client!.subscribe(`/topic/users/${userId}/notifications`, (message) => {
                     const { orderId, status, message: text } = JSON.parse(message.body);

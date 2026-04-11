@@ -74,7 +74,7 @@ public class SqsPaymentSimulationConsumer {
             Thread.sleep(simulationDelayMs);
         }
 
-        Order order = orderRepository.findById(event.orderId())
+        Order order = orderRepository.findByIdWithCustomer(event.orderId())
                 .orElseThrow(() -> new RuntimeException("Order not found: " + event.orderId()));
 
         OrderStatus newStatus = random.nextDouble() < 0.8 ? OrderStatus.CONFIRMED : OrderStatus.CANCELLED;

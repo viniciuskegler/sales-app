@@ -7,10 +7,11 @@ import {
 } from "./model/products.model";
 import { BehaviorSubject, Observable } from "rxjs";
 import type { CategoryFilterValue } from "@features/filterlist/model/filters.model";
+import { environment } from "environments/environment";
 
 @Injectable({ providedIn: "root" })
 export class ProductsService {
-    private readonly apiUrl = "api/products";
+    private readonly apiUrl = `${environment.baseurl}/products`;
     private productsSubject = new BehaviorSubject<ProductResponse | null>(null);
     public productsObservable = this.productsSubject.asObservable();
 

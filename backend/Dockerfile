@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
-RUN ./mvnw dependency:go-offline -q
+RUN ./mvnw dependency:go-offline -q || ./mvnw dependency:go-offline -q || ./mvnw dependency:go-offline -q
 
 COPY src ./src
 RUN ./mvnw package -DskipTests -q
@@ -22,5 +22,5 @@ COPY --from=extractor /app/extracted/snapshot-dependencies/ ./
 COPY --from=extractor /app/extracted/application/ ./
 
 EXPOSE 8080
-
+ARG CACHEBUST=none
 ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "org.springframework.boot.loader.launch.JarLauncher"]

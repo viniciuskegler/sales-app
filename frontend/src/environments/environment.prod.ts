@@ -4,4 +4,5 @@ export const environment = {
     apiUrl: "/",
     baseurl: "/api",
     wsUrl: "",
+    wsEnabled: false,
 };

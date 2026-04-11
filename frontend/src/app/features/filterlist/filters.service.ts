@@ -2,10 +2,11 @@ import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { CategoryFilterDTO } from "./model/filters.model";
+import { environment } from "environments/environment";
 
 @Injectable({ providedIn: "root" })
 export class FiltersService {
-    private readonly apiUrl = "/api/products/categories";
+    private readonly apiUrl = `${environment.baseurl}/products/categories`;
 
     httpService = inject(HttpClient);
 

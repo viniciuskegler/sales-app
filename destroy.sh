@@ -7,6 +7,7 @@ trap 'echo; read -r -p "Script failed. Press Enter to close..."' ERR
 
 export CDK_DEFAULT_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
 export CDK_DEFAULT_REGION=$(aws configure get region)
+export AWS_DEFAULT_REGION="$CDK_DEFAULT_REGION"
 
 cd "$(dirname "$0")/infra"
 

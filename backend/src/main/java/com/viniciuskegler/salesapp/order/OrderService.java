@@ -13,6 +13,8 @@ import com.viniciuskegler.salesapp.product.ProductRepository;
 import com.viniciuskegler.salesapp.product.model.Product;
 import com.viniciuskegler.salesapp.shared.exception.RecordNotFoundException;
 import com.viniciuskegler.salesapp.user.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -26,6 +28,8 @@ import java.util.stream.Collectors;
 @Validated
 @Service
 public class OrderService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
@@ -96,11 +100,19 @@ public class OrderService {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
-                    paymentEventPublisher.publishPaymentRequest(orderId);
+                    try {
+                        paymentEventPublisher.publishPaymentRequest(orderId);
+                    } catch (Exception e) {
+                        log.error("Failed to publish payment event for order {}: {}", orderId, e.getMessage());
+                    }
                 }
             });
         } else {
-            paymentEventPublisher.publishPaymentRequest(orderId);
+            try {
+                paymentEventPublisher.publishPaymentRequest(orderId);
+            } catch (Exception e) {
+                log.error("Failed to publish payment event for order {}: {}", orderId, e.getMessage());
+            }
         }
     }
 

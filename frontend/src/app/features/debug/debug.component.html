@@ -1,0 +1,34 @@
+<div class="mx-auto w-[90%] max-w-screen-sm px-4 py-16 font-mono text-sm">
+    <h1 class="mb-6 text-xl font-bold">Debug</h1>
+
+    <table class="w-full border-collapse">
+        <tbody>
+            <tr class="border-b">
+                <td class="py-2 pr-6 font-semibold text-muted-foreground">Build time</td>
+                <td class="py-2">
+                    @if (buildTime() === null) {
+                        <span class="text-muted-foreground">loading...</span>
+                    } @else {
+                        {{ buildTime() }}
+                    }
+                </td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 pr-6 font-semibold text-muted-foreground">production</td>
+                <td class="py-2">{{ env.production }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 pr-6 font-semibold text-muted-foreground">wsEnabled</td>
+                <td class="py-2">{{ env.wsEnabled }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 pr-6 font-semibold text-muted-foreground">wsUrl</td>
+                <td class="py-2">{{ env.wsUrl || '(none)' }}</td>
+            </tr>
+            <tr class="border-b">
+                <td class="py-2 pr-6 font-semibold text-muted-foreground">apiUrl</td>
+                <td class="py-2">{{ env.apiUrl }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

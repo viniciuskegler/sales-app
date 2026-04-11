@@ -4,18 +4,18 @@ import { Observable, EMPTY } from "rxjs";
 import { Client } from "@stomp/stompjs";
 import { environment } from "environments/environment";
 
+
 @Injectable({ providedIn: "root" })
 export class PaymentWebSocketService {
     private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
     watchOrderStatus(orderId: number): Observable<string> {
-        if (!this.isBrowser) {
+        if (!this.isBrowser || !environment.wsEnabled) {
             return EMPTY;
         }
 
         return new Observable<string>((observer) => {
-            const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-            const brokerURL = environment.wsUrl || `${protocol}//${window.location.host}/ws`;
+            const brokerURL = environment.wsUrl || (window as any).__WS_URL__ || "ws://localhost:8080/ws";
             const client = new Client({
                 brokerURL,
                 onConnect: () => {

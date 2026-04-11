@@ -44,6 +44,13 @@ const routes: Routes = [
                         (m) => m.PaymentComponent,
                     ),
             },
+            {
+                path: "debug",
+                loadComponent: () =>
+                    import("@features/debug/debug.component").then(
+                        (m) => m.DebugComponent,
+                    ),
+            },
         ],
     },
 ];
