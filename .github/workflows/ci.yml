@@ -48,5 +48,12 @@ jobs:
       - name: Build and push frontend image
         run: |
           IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/salesapp-frontend:latest"
-          docker build -t "$IMAGE_URI" frontend/
+          docker build --build-arg BUILD_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)" -t "$IMAGE_URI" frontend/
           docker push "$IMAGE_URI"
+
+      - name: Trigger App Runner deployments
+        run: |
+          BACKEND_ARN=$(aws apprunner list-services --region us-east-1 --query "ServiceSummaryList[?ServiceName=='salesapp-backend'].ServiceArn" --output text)
+          FRONTEND_ARN=$(aws apprunner list-services --region us-east-1 --query "ServiceSummaryList[?ServiceName=='salesapp-frontend'].ServiceArn" --output text)
+          aws apprunner start-deployment --service-arn "$BACKEND_ARN" --region us-east-1 > /dev/null
+          aws apprunner start-deployment --service-arn "$FRONTEND_ARN" --region us-east-1 > /dev/null
