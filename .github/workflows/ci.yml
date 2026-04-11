@@ -53,7 +53,5 @@ jobs:
 
       - name: Trigger App Runner deployments
         run: |
-          BACKEND_ARN=$(aws apprunner list-services --region us-east-1 --query "ServiceSummaryList[?ServiceName=='salesapp-backend'].ServiceArn" --output text)
-          FRONTEND_ARN=$(aws apprunner list-services --region us-east-1 --query "ServiceSummaryList[?ServiceName=='salesapp-frontend'].ServiceArn" --output text)
-          aws apprunner start-deployment --service-arn "$BACKEND_ARN" --region us-east-1 > /dev/null
-          aws apprunner start-deployment --service-arn "$FRONTEND_ARN" --region us-east-1 > /dev/null
+          aws apprunner start-deployment --service-arn "arn:aws:apprunner:us-east-1:955223364083:service/salesapp-backend/a185f4d2e8aa44cbb62b9ddb3c6f6938" --region us-east-1 > /dev/null
+          aws apprunner start-deployment --service-arn "arn:aws:apprunner:us-east-1:955223364083:service/salesapp-frontend/bd9db6ebfc6d4fbfa3fefa3ecffd5399" --region us-east-1 > /dev/null
