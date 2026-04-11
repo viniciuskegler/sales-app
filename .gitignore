@@ -9,7 +9,6 @@ target/
 
 /frontend/.vscode/*
 /frontend/.angular/*
-/frontend/package-lock.json
 /frontend/dist
 /frontend/tmp
 /frontend/out-tsc
