@@ -1,20 +1,18 @@
 @if (showHeaderObs | async) {
     <div
-        class="bg-wheat flex h-[48px] w-full flex-row items-center justify-between px-[10px]">
+        class="bg-card flex h-[56px] w-full flex-row items-center justify-between border-b border-primary/30 px-6">
         <div class="flex flex-1">
-            <a href="/">
-                <img
-                    src="images/logo2downscalled.png"
-                    alt="Logo"
-                    class="h-[35px]" />
+            <a href="/" class="text-primary flex items-center gap-x-2">
+                <z-icon zType="shopping-cart" class="size-7" />
+                <span class="hidden text-lg font-semibold whitespace-nowrap lg:inline">{{ appName }}</span>
             </a>
         </div>
-        <div class="flex flex-2 max-lg:w-[80%]">
+        <div class="flex flex-2 max-lg:w-[80%] max-lg:flex-5">
             <app-search-bar class="w-full" />
         </div>
-        <div class="flex flex-1 items-center justify-end gap-x-3">
+        <div class="text-primary flex flex-1 items-center justify-end gap-x-3">
             @if (authService.isLoggedIn()) {
-                <a class="flex flex-row" routerLink="/account">
+                <a class="flex flex-row items-center gap-x-1" routerLink="/account">
                     <z-icon zType="user" class="size-7 cursor-pointer" />
                     <span class="hidden text-m whitespace-nowrap lg:inline">{{
                         authService.currentUser()?.fullName
@@ -29,7 +27,7 @@
             <a routerLink="/cart" class="relative">
                 <z-icon zType="shopping-cart" class="size-7 cursor-pointer" />
                 @if (cartService.totalItems() > 0) {
-                    <span class="bg-primary text-primary-foreground absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full text-[10px] font-bold">
+                    <span class="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                         {{ cartService.totalItems() }}
                     </span>
                 }

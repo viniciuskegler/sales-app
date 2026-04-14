@@ -9,6 +9,7 @@ import { SearchBarComponent } from "@features/searchbar/search-bar.component";
 import { ZardDialogService } from "@shared/components/dialog/dialog.service";
 import { ZardIconComponent } from "@shared/components/icon/icon.component";
 import { NotificationBellComponent } from "@features/notifications/notification-bell/notification-bell.component";
+import { environment } from "@environments/environment";
 import { Observable } from "rxjs";
 
 @Component({
@@ -23,6 +24,7 @@ export class HeaderComponent {
     readonly cartService = inject(CartService);
     private readonly dialogService = inject(ZardDialogService);
 
+    readonly appName = environment.name;
     showHeaderObs: Observable<boolean>;
 
     constructor() {

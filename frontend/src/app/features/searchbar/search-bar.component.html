@@ -8,7 +8,7 @@
     <div class="flex w-full flex-row">
         <input
             id="productSearch"
-            class="text-secondary bg-primary"
+            class="bg-background text-foreground placeholder:text-muted-foreground"
             z-input
             [zStatus]="inputStatus()"
             placeholder="Search a Product"
@@ -27,7 +27,7 @@
 
 <ng-template #searchResultsTemplate>
     <div
-        class="flex w-[49vw] flex-col gap-y-[5px] overflow-y-auto rounded border bg-white p-2 max-lg:w-[74vw]">
+        class="flex w-[49vw] flex-col gap-y-[5px] overflow-y-auto rounded border border-primary/30 bg-card text-foreground p-2 max-lg:w-[74vw]">
         @for (product of resource.value()?.content; track $index) {
             <div 
                 class="cursor-pointer rounded px-2 py-1" 

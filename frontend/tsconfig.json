@@ -30,6 +30,9 @@
       ],
       "@core/*": [
         "app/core/*"
+      ],
+      "@environments/*": [
+        "environments/*"
       ]
     }
   },
