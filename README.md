@@ -169,8 +169,8 @@ App Runner detects new images and redeploys automatically.
 
 A workflow at `.github/workflows/ci.yml` automates testing and deployment:
 
-- **On every push/PR to `main`** — runs backend unit tests and frontend tests in parallel
-- **On push to `main` only** — if tests pass, builds and pushes both Docker images to ECR
+- **On every push/PR to `main`** — runs backend unit tests
+- **On push to `main` only** — if tests pass, builds and pushes both Docker images to ECR and triggers App Runner deployments
 
 Required GitHub repository secrets:
 
@@ -187,18 +187,18 @@ Set as App Runner environment variables. Secrets are injected from Secrets Manag
 
 **Backend**
 
-| Variable | Source |
-|---|---|
-| `SPRING_PROFILES_ACTIVE` | `prod` (set by CDK) |
-| `DB_HOST` | RDS endpoint (CDK output) |
-| `DB_NAME` | `salesapp` |
-| `DB_USER` | `salesapp` |
-| `DB_PASSWORD` | Secrets Manager |
+| Variable | Source                            |
+|---|-----------------------------------|
+| `SPRING_PROFILES_ACTIVE` | `prod` (set by CDK)               |
+| `DB_HOST` | RDS endpoint (CDK output)         |
+| `DB_NAME` | `salesapp`                        |
+| `DB_USER` | `salesapp`                        |
+| `DB_PASSWORD` | Secrets Manager                   |
 | `REDIS_HOST` | ElastiCache endpoint (CDK output) |
-| `JWT_SECRET` | Secrets Manager |
-| `JWT_EXPIRATION` | `36000` |
-| `SQS_QUEUE_URL` | SQS queue URL (CDK output) |
-| `INTERNAL_API_SECRET` | Secrets Manager |
+| `JWT_SECRET` | Secrets Manager                   |
+| `JWT_EXPIRATION` | `86400000`                         |
+| `SQS_QUEUE_URL` | SQS queue URL (CDK output)        |
+| `INTERNAL_API_SECRET` | Secrets Manager                   |
 
 **Frontend**
 
